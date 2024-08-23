@@ -25,8 +25,16 @@ repositories {
 dependencies {
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
+
+    implementation("io.ktor:ktor-server-content-negotiation:2.2.4")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
+    implementation("io.ktor:ktor-server-openapi:$ktor_version")
+    implementation("io.ktor:ktor-server-cors:$ktor_version")
+
     implementation("ch.qos.logback:logback-classic:$logback_version")
+
     testImplementation("io.ktor:ktor-server-test-host-jvm")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")

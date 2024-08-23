@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redoc - Hello World API</title>
+    <!-- Load Redoc from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/redoc@next/bundles/redoc.standalone.js"></script>
+</head>
+<body>
+<redoc spec-url="/openapi/doc.yaml"></redoc>
+<script>
+    Redoc.init('/openapi/doc.yaml', {}, document.querySelector('redoc'));
+</script>
+</body>
+</html>
