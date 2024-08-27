@@ -13,6 +13,7 @@ fun main() {
 }
 
 fun Application.module() {
+    configureLogging()
     install(CORS) {
         anyHost()
         allowHeader(HttpHeaders.ContentType)
