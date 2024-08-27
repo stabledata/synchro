@@ -21,6 +21,6 @@ paths:
                 properties:
                   message:
                     type: string
-                    example: "Hello World!"
+                    example: "Hello World"
 components:
   schemas: {}

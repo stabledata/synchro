@@ -1,1 +1,1 @@
-rootProject.name = "syncrho"
+rootProject.name = "synchro"
