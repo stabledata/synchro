@@ -1,4 +1,4 @@
-package com.stabledata.plugins
+package com.stabledata
 
 import org.slf4j.LoggerFactory
 import ch.qos.logback.classic.Level
