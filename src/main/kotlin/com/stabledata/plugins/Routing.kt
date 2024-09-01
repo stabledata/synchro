@@ -1,5 +1,7 @@
 package com.stabledata.plugins
 
+import com.stabledata.UserCredentials
+import com.stabledata.generateJwtTokenWithCredentials
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
 import io.ktor.server.response.*
@@ -19,6 +21,12 @@ fun Application.configureRouting() {
                 this::class.java.classLoader.getResource("openapi/redoc.html")!!.readText(),
                 io.ktor.http.ContentType.Text.Html
             )
+        }
+
+        get("/token") {
+            val userCredentials = UserCredentials("ben")
+            val token = generateJwtTokenWithCredentials(userCredentials)
+            call.respond(token)
         }
 
     }

@@ -6,6 +6,7 @@ val ktor_version: String by project
 plugins {
     kotlin("jvm") version "2.0.20"
     id("io.ktor.plugin") version "2.3.12"
+    kotlin("plugin.serialization") version "2.0.20"
 }
 
 group = "com.stabledata"
@@ -30,6 +31,11 @@ dependencies {
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
     implementation("io.ktor:ktor-server-openapi:$ktor_version")
     implementation("io.ktor:ktor-server-cors:$ktor_version")
+
+    implementation("io.ktor:ktor-server-auth:$ktor_version")
+    implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
+
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
