@@ -3,6 +3,7 @@ package com.stabledata.plugins
 import com.stabledata.UserCredentials
 import com.stabledata.generateJwtTokenWithCredentials
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.http.content.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -13,7 +14,12 @@ fun Application.configureRouting() {
         get("/") {
             call.respondText("Hello World!")
         }
+        authenticate("auth-jwt") {
 
+            get("/secure") {
+                call.respondText("secured")
+            }
+        }
         openAPI(path="openapi", swaggerFile = "openapi/doc.yaml")
         staticResources("/openapi", basePackage = "openapi")
         get("/redoc") {

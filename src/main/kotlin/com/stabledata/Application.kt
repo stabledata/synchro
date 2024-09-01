@@ -19,5 +19,7 @@ fun Application.module() {
         allowHeader(HttpHeaders.ContentType)
         allowMethod(HttpMethod.Get)
     }
+    configureAuth()
     configureRouting()
+
 }
