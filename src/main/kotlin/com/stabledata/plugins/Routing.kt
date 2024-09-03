@@ -1,5 +1,6 @@
 package com.stabledata.plugins
 
+import ch.qos.logback.classic.Logger
 import com.stabledata.UserCredentials
 import com.stabledata.generateJwtTokenWithCredentials
 import io.ktor.server.application.*
@@ -9,9 +10,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.plugins.openapi.*
 
-fun Application.configureRouting() {
+fun Application.configureRouting(logger: Logger) {
     routing {
         get("/") {
+            logger.info("Hello world endpoint called")
             call.respondText("Hello World!")
         }
         authenticate("auth-jwt") {

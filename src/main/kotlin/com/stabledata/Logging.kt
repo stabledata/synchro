@@ -5,8 +5,16 @@ import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
 
 const val DEFAULT_LOGGER_NAME = "stable"
-fun getLogger (name: String = DEFAULT_LOGGER_NAME): Logger {
-    return LoggerFactory.getLogger(name) as Logger
+
+var defaultLogger: Logger? = null
+
+class LoggerNotInitializedException: Exception("Logger not initialized, call configureLogging() or setLogger()")
+fun getLogger(): Logger {
+    return defaultLogger ?: throw LoggerNotInitializedException()
+}
+
+fun setLogger (name: String = DEFAULT_LOGGER_NAME) {
+    defaultLogger = LoggerFactory.getLogger(name) as Logger
 }
 fun configureLogging() {
     val logBack = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME) as Logger
@@ -20,6 +28,7 @@ fun configureLogging() {
         "TRACE" -> Level.TRACE
         else -> Level.INFO  // Default to INFO if the value is unrecognized
     }
-
+    println("LOG LEVEL SET TO: $logLevel")
     logBack.level = level
+    setLogger()
 }

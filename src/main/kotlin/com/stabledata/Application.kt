@@ -14,12 +14,22 @@ fun main() {
 
 fun Application.module() {
     configureLogging()
+    // cors, auth etc.
+    staticConfig()
+
+    // injectables for testing
+    val logger = getLogger()
+    configureRouting(logger)
+}
+
+/*
+Handles non-injectable setup
+ */
+fun Application.staticConfig () {
     install(CORS) {
         anyHost()
         allowHeader(HttpHeaders.ContentType)
         allowMethod(HttpMethod.Get)
     }
     configureAuth()
-    configureRouting()
-
 }
