@@ -19,6 +19,7 @@ fun Application.module() {
 
     // injectables for testing
     val logger = getLogger()
+    // val logger = LoggerFactory.getLogger(Application::class.java)
     configureRouting(logger)
 }
 

@@ -10,13 +10,12 @@ import io.ktor.server.testing.*
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
 
-
 import kotlin.test.*
 
 class ApplicationTest {
 
     @Test
-    fun testRoot() = testApplication {
+    fun `simple response healthcheck`() = testApplication {
         val mockLogger = Mockito.mock(Logger::class.java)
         application {
             testModule(mockLogger)
