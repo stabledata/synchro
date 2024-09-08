@@ -45,6 +45,8 @@ fun create () {
 fun migrate() {
     val ds = hikari()
     Flyway.configure()
+        .baselineVersion("16.4")  // Use the current PostgreSQL version
+        .baselineOnMigrate(true)  // Baseline the migration
         .dataSource(ds)
         .load()
         .migrate()

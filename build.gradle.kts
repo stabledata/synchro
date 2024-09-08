@@ -67,9 +67,9 @@ dependencies {
     // db
     implementation("org.postgresql:postgresql:42.7.2")
     implementation("com.zaxxer:HikariCP:5.0.1")
-    // note: we ignored a vulnerability here
-    implementation("org.flywaydb:flyway-core:10.17.3")
 
+    implementation("org.flywaydb:flyway-core:10.4.1")
+    runtimeOnly("org.flywaydb:flyway-database-postgresql:10.17.3")
 
     // misc
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
