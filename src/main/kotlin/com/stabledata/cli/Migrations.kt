@@ -1,5 +1,6 @@
 package com.stabledata.cli
 
+import com.stabledata.configureLogging
 import com.stabledata.hikari
 import kotlinx.coroutines.runBlocking
 import org.flywaydb.core.Flyway
@@ -57,6 +58,8 @@ object Migrations {
 
     @JvmStatic
     fun main(args: Array<String>) {
+
+        configureLogging()
 
         runBlocking {
             val task = args.first()
