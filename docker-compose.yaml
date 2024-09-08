@@ -1,0 +1,18 @@
+version: '3.3'
+
+services:
+  postgresdb:
+    container_name: stable-kotlin-pg
+    image: 'postgres:16-alpine'
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-U', 'postgres']
+    volumes:
+      - 'pg-volume:/var/lib/postgresql/data'
+    restart: always
+    env_file:
+      - .env
+
+volumes:
+  pg-volume:

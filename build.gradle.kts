@@ -23,24 +23,61 @@ repositories {
     mavenCentral()
 }
 
+sourceSets {
+    main {
+        java.srcDirs("src/main/kotlin/cli")
+    }
+}
+
+tasks.register<JavaExec>("migrate") {
+    group = "Execution"
+    description = "Run Flyway commands from gradle"
+
+    classpath = sourceSets.getByName("main").runtimeClasspath
+    mainClass.set("com.stabledata.cli.Migrations")
+
+    val task = if (project.hasProperty("task")) {
+        project.property("task") as String
+    } else {
+        "help" // Default to help if no task is provided
+    }
+
+    // Pass this to the application as an argument
+    args = listOf(task)
+
+}
+
+
 dependencies {
+    // ktor core
     implementation("io.ktor:ktor-server-core-jvm")
     implementation("io.ktor:ktor-server-netty-jvm")
 
     implementation("io.ktor:ktor-server-content-negotiation:2.2.4")
-    implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
     implementation("io.ktor:ktor-server-openapi:$ktor_version")
     implementation("io.ktor:ktor-server-cors:$ktor_version")
 
     implementation("io.ktor:ktor-server-auth:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
 
+    // serialization
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
 
+    // db
+    implementation("org.postgresql:postgresql:42.7.2")
+    implementation("com.zaxxer:HikariCP:5.0.1")
+    // note: we ignored a vulnerability here
+    implementation("org.flywaydb:flyway-core:10.17.3")
+
+
+    // misc
+    implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+
+    // log
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
     testImplementation("io.ktor:ktor-server-test-host-jvm")
-
     testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
