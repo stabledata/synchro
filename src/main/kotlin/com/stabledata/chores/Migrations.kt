@@ -1,4 +1,4 @@
-package com.stabledata.cli
+package com.stabledata.chores
 
 import com.stabledata.configureLogging
 import com.stabledata.hikari
@@ -21,16 +21,25 @@ object Migrations {
                 println("Running migration task: $task")
                 when (task) {
                     "migrate" -> migrate()
-                    "undo" -> undo()
+                     "undo" -> undo() // flyway wants monies now for this
                     "repair" -> repair()
                     "create" -> create()
-                    else -> println("Unknown task: $task")
+                    "help" -> printHelp()
+                    else -> {
+                        println("Unknown task: $task")
+                        printHelp()
+                    }
+
                 }
             } else {
-                println("No task provided. Run './gradlew migrate --args [create]'.")
+                printHelp()
             }
 
         }
+    }
+
+    fun printHelp () {
+        println("To do flyway chores run './gradlew migrate --args [create|migrate|repair]'")
     }
 }
 

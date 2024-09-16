@@ -34,7 +34,7 @@ tasks.register<JavaExec>("migrate") {
     description = "Run Flyway commands from gradle"
 
     classpath = sourceSets.getByName("main").runtimeClasspath
-    mainClass.set("com.stabledata.cli.Migrations")
+    mainClass.set("com.stabledata.chores.Migrations")
 
     val task = if (project.hasProperty("task")) {
         project.property("task") as String
