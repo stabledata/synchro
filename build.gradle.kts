@@ -39,7 +39,7 @@ tasks.register<JavaExec>("migrate") {
     val task = if (project.hasProperty("task")) {
         project.property("task") as String
     } else {
-        "help" // Default to help if no task is provided
+        "migrate" // Default to help if no task is provided
     }
 
     // Pass this to the application as an argument
