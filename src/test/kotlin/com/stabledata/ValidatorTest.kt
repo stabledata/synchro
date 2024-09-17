@@ -1,35 +1,45 @@
 package com.stabledata
 
 import com.fasterxml.uuid.Generators.timeBasedEpochGenerator
-import kotlinx.serialization.json.Json.Default.parseToJsonElement
 import kotlin.test.Test
 
 class ValidatorTest {
     @Test
     fun `validates schemas correctly` () {
         val uuid = timeBasedEpochGenerator().generate()
-        val validJSON = parseToJsonElement("""
+        val validJSON = """
             {
               "id": "$uuid",
               "path": "classes"
             }
-        """.trimIndent())
+        """.trimIndent()
 
         val (isValid, errors) = validatePayloadAgainstSchema("create.collection.json", validJSON)
         assert(isValid)
-        assert(errors.size == 0)
+        assert(errors.isEmpty())
     }
 
     @Test
     fun `validates invalid schemas correctly` () {
-        val validJSON = parseToJsonElement("""
+        val invalidJSON = """
             {
               "foo": "bar"
             }
-        """.trimIndent())
+        """.trimIndent()
 
-        val (isValid, errors) = validatePayloadAgainstSchema("create.collection.json", validJSON)
+        val (isValid, errors) = validatePayloadAgainstSchema("create.collection.json", invalidJSON)
         assert(!isValid)
-        assert(errors.size > 0)
+        assert(errors.isNotEmpty())
+    }
+
+    @Test
+    fun `handles parsing errors` () {
+        val notActuallyJSON = """
+            Server error
+        """.trimIndent()
+
+        val (isValid, errors) = validatePayloadAgainstSchema("create.collection.json", notActuallyJSON)
+        assert(!isValid)
+        assert(errors.isEmpty())
     }
 }
