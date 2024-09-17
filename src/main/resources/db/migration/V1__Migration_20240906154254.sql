@@ -5,11 +5,11 @@ CREATE SCHEMA IF NOT EXISTS stable;
 /* Default stores */
 CREATE TABLE stable.logs (
     id uuid PRIMARY KEY,
+    event_type text NOT NULL,
     actor_id text NOT NULL,
     path text,
     collection_id uuid,
     document_id uuid,
-    event_type text NOT NULL,
     created_at bigint NOT NULL,
     confirmed_at bigint
 );

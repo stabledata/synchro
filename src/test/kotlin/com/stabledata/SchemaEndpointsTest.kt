@@ -1,5 +1,6 @@
 package com.stabledata
 
+import com.fasterxml.uuid.Generators
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -32,5 +33,29 @@ class SchemaEndpointsTest {
         val body = Json.parseToJsonElement(response.bodyAsText()) as JsonArray
         assertNotNull(body.size > 0)
         assertEquals(HttpStatusCode.BadRequest, response.status)
+    }
+
+
+    @Test
+    fun `creates a collection` () = testApplication {
+        application {
+            module()
+        }
+
+        val token = generateJwtTokenWithCredentials(UserCredentials("ben"))
+        val uuid = Generators.timeBasedEpochGenerator().generate()
+        val response = client.post("/schema/create.collection") {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $token")
+            }
+            contentType(ContentType.Application.Json)
+            setBody("""
+                {
+                   "id":"$uuid",
+                   "path":"classes"
+                }
+            """.trimIndent())
+        }
+        assertEquals(HttpStatusCode.OK, response.status)
     }
 }

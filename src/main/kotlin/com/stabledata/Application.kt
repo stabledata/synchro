@@ -9,6 +9,7 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
 import kotlinx.serialization.json.Json
+import org.jetbrains.exposed.sql.Database
 
 fun main() {
     val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
@@ -25,9 +26,13 @@ fun Application.module() {
     val logger = getLogger()
 
     // schema endpoints
+    Database.connect(hikari())
     configureSchemaRouting(logger)
 
-    configureRouting(logger) // static temp routes for now
+    // static temp routes for now
+    configureRouting(logger)
+
+    // documentation
     configureDocsRouting()
 }
 

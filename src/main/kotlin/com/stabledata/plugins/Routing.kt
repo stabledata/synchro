@@ -15,7 +15,6 @@ fun Application.configureRouting(logger: Logger) {
             call.respondText("Hello World!")
         }
         authenticate(JWT_NAME) {
-
             get("/secure") {
                 call.respondText("secured")
             }

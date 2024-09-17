@@ -9,7 +9,7 @@ import io.ktor.server.auth.jwt.*
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserCredentials (val username: String)
+data class UserCredentials (val email: String)
 
 fun getStableJwtSecret(): String {
     return System.getenv("JWT_SECRET") ?: "JWT_SECRET"
@@ -18,7 +18,7 @@ fun getStableJwtSecret(): String {
  fun generateJwtTokenWithCredentials(userCredentials: UserCredentials): String {
      return JWT
              .create()
-             .withClaim("username", userCredentials.username)
+             .withClaim("email", userCredentials.email)
              // .withExpiresAt(Date(System.currentTimeMillis() + 60000))
          .sign(Algorithm.HMAC256(getStableJwtSecret()))
  }
@@ -32,7 +32,7 @@ fun getVerifier (): JWTVerifier {
 }
 
 fun validateCredentials(credential: JWTCredential): JWTPrincipal? {
-    return if (credential.payload.getClaim("username").asString() != "") {
+    return if (credential.payload.getClaim("email").asString() != "") {
          JWTPrincipal(credential.payload)
     } else {
         null

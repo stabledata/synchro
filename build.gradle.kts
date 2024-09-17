@@ -71,7 +71,11 @@ dependencies {
     // db
     implementation("org.postgresql:postgresql:42.7.2")
     implementation("com.zaxxer:HikariCP:5.0.1")
+    implementation("org.jetbrains.exposed:exposed-core:0.40.1")
+    implementation("org.jetbrains.exposed:exposed-dao:0.40.1")
+    implementation("org.jetbrains.exposed:exposed-jdbc:0.40.1")
 
+    // db chores
     implementation("org.flywaydb:flyway-core:10.4.1")
     runtimeOnly("org.flywaydb:flyway-database-postgresql:10.17.3")
 
