@@ -1,6 +1,7 @@
 package com.stabledata
 
 import com.stabledata.plugins.*
+import com.stabledata.plugins.routing.configureSchemaRouting
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
