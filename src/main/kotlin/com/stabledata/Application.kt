@@ -13,14 +13,16 @@ fun main() {
 }
 
 fun Application.module() {
+
     configureLogging()
-    // cors, auth etc.
+
+    // cors, auth etc. (below)
     staticConfig()
 
     // injectables for testing
     val logger = getLogger()
-    // val logger = LoggerFactory.getLogger(Application::class.java)
-    configureRouting(logger)
+    configureRouting(logger) // static temp routes for now
+    configureDocsRouting()
 }
 
 /*

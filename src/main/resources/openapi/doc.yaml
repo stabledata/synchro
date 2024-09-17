@@ -22,5 +22,41 @@ paths:
                   message:
                     type: string
                     example: "Hello World"
+
+  /schema/create.collection:
+    post:
+      summary: Create a new collection
+      operationId: createCollection
+      requestBody:
+        description: Payload for creating a new collection
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/create.collection.json'
+      responses:
+        '201':
+          description: Collection created successfully
+        '400':
+          description: Invalid request payload
+
+  /schema/update.collection:
+    post:
+      summary: Update an existing collection
+      operationId: updateCollection
+      requestBody:
+        description: Payload for updating an existing collection
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/update.collection.json'
+      responses:
+        '200':
+          description: Collection updated successfully
+        '400':
+          description: Invalid request payload
+        '404':
+          description: Collection not found
 components:
   schemas: {}

@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Create Collection",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the collection (required for idempotency)"
+    },
+    "path": {
+      "type": "string",
+      "description": "Path for the collection",
+      "minLength": 1
+    },
+    "type": {
+      "type": "string",
+      "description": "Type of the collection"
+    },
+    "label": {
+      "type": "string",
+      "description": "Label of the collection"
+    },
+    "icon": {
+      "type": "string",
+      "description": "Icon for the collection"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the collection"
+    }
+  },
+  "required": ["id", "path"],
+  "additionalProperties": false
+}

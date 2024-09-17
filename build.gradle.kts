@@ -60,9 +60,13 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
 
-    // serialization
+    // serialization  + json + validation
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
+    implementation("io.github.optimumcode:json-schema-validator:0.2.3")
+    implementation("io.ktor:ktor-serialization-gson:2.3.1")
+    implementation("com.google.code.gson:gson:2.9.0")
+
 
     // db
     implementation("org.postgresql:postgresql:42.7.2")
@@ -73,6 +77,7 @@ dependencies {
 
     // misc
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
+    implementation("com.fasterxml.uuid:java-uuid-generator:5.1.0")
 
     // log
     implementation("ch.qos.logback:logback-classic:$logback_version")
