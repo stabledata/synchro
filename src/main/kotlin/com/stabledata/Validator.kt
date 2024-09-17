@@ -7,16 +7,20 @@ import kotlinx.serialization.json.Json.Default.parseToJsonElement
 import java.nio.file.Files
 import java.nio.file.Paths
 
-fun validatePayloadAgainstSchema(schemaFileName: String, payload: String): Pair<Boolean, List<ValidationError>> {
+fun validatePayloadAgainstSchema(schemaFileName: String, payload: String): Pair<Boolean, List<String>> {
     val schemaLocation = "src/main/resources/openapi/schemas/$schemaFileName"
     val schemaJson = Files.readString(Paths.get(schemaLocation))
     val schema = JsonSchema.fromDefinition(schemaJson)
-    val errors = mutableListOf<ValidationError>()
     try {
         val json = parseToJsonElement(payload)
+        val errors = mutableListOf<ValidationError>()
+        val isValid =
+            schema.validate(json, errors::add)
         return Pair(
-            schema.validate(json, errors::add),
-            errors
+            isValid,
+            errors.map {
+                it.message
+            }
         )
     } catch (e: SerializationException) {
         getLogger().error("Validation failed to parse JSON: $payload")

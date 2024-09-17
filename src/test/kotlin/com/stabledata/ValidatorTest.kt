@@ -34,6 +34,7 @@ class ValidatorTest {
 
     @Test
     fun `handles parsing errors` () {
+        configureLogging()
         val notActuallyJSON = """
             Server error
         """.trimIndent()
