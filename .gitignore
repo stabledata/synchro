@@ -39,3 +39,4 @@ out/
 /docs/.swagger-codegen-ignore
 /docs/index.html
 
+/.env
