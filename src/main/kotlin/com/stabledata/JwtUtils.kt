@@ -5,7 +5,6 @@ import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
-import io.ktor.server.auth.jwt.*
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -31,14 +30,6 @@ fun getVerifier (): JWTVerifier {
 
 }
 
-fun validateCredentials(credential: JWTCredential): JWTPrincipal? {
-    return if (credential.payload.getClaim("email").asString() != "") {
-         JWTPrincipal(credential.payload)
-    } else {
-        null
-    }
-}
-
 fun verifyToken(token: String): DecodedJWT? {
     val logger = getLogger()
     return try {
@@ -48,6 +39,6 @@ fun verifyToken(token: String): DecodedJWT? {
         decodedJWT
     } catch (exception: JWTVerificationException) {
         logger.error("Invalid token: ${exception.message}")
-        null  // Return null if verification fails
+        null
     }
 }

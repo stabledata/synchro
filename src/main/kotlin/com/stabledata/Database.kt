@@ -2,6 +2,7 @@ package com.stabledata
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.select
@@ -20,29 +21,8 @@ fun hikari (): HikariDataSource {
     return HikariDataSource(hikariConfig)
 }
 
-object Collection {
-
-    private fun convertPath (path: String): String {
-        return path.replace(".", "_")
-    }
-    fun existsAtPathSQL(path: String): Boolean {
-        val convertedPath = convertPath(path)
-        val exists = "SELECT EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = '$convertedPath');"
-        return transaction {
-            val result = exec(exists) {
-                it.next() // Move to the first result
-                it.getBoolean(1) // Get the boolean value of the result
-            }
-            return@transaction result ?: false
-        }
-    }
-
-    fun createAtPathSQL(path: String): String {
-        val convertedPath = convertPath(path)
-        return """
-            CREATE TABLE $convertedPath (id UUID PRIMARY KEY)
-        """.trimIndent()
-    }
+fun convertPath (path: String): String {
+    return path.replace(".", "_")
 }
 
 object Tables {
@@ -51,12 +31,20 @@ object Tables {
         // https://github.com/JetBrains/Exposed/issues/1512
         val eventId = uuid("id")
         val actorId = text("actor_id")
-        val path = text("path").nullable() // Nullable since it's optional in the SQL definition
         val eventType = text("event_type")
+
+        // shit, we need to think about created at
+        // because it probably should come from
+        // a stable client payload wrapper, which we were trying to avoid at the synchro later
         val createdAt = long("created_at")
-//        val collectionId = uuid("collection_id").nullable() // Nullable because it's optional
-//        val documentId = uuid("document_id").nullable() // Nullable because it's optional
-//        val confirmedAt = long("confirmed_at").nullable() // Nullable because it's optional
+        val confirmedAt = long("confirmed_at").nullable() // Nullable because it's optional
+        val path = text("path").nullable()
+
+        val collectionId = uuid("collection_id").nullable()
+
+        // later when writing data...
+        // val documentId = uuid("document_id").nullable() // Nullable because it's optional
+
 
         fun findById(logId: UUID): ResultRow? {
             return transaction {
@@ -66,4 +54,40 @@ object Tables {
             }
         }
     }
+
+    object Collections : UUIDTable("stable.collections") {
+        val path = text("path")
+        val type = text("type").nullable()
+        val label = text("label").nullable()
+        val icon = text("icon").nullable()
+        val description = text("description").nullable()
+
+        fun existsAtPath(path: String): Boolean {
+            val convertedPath = convertPath(path)
+            val exists = """
+            SELECT EXISTS (
+                SELECT 1 
+                FROM information_schema.tables 
+                WHERE table_schema = 'public' 
+                AND table_name = '$convertedPath'
+            );
+            """.trimIndent()
+            return transaction {
+                val result = exec(exists) {
+                    it.next() // Move to the first result
+                    it.getBoolean(1) // Get the boolean value of the result
+                }
+                return@transaction result ?: false
+            }
+        }
+
+        fun createAtPathSQL(path: String): String {
+            val convertedPath = convertPath(path)
+            return """
+            CREATE TABLE $convertedPath (id UUID PRIMARY KEY)
+        """.trimIndent()
+        }
+
+    }
 }
+

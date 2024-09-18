@@ -18,7 +18,7 @@ fun getLogger(): Logger {
 fun setLogger (name: String = DEFAULT_LOGGER_NAME) {
     defaultLogger = LoggerFactory.getLogger(name)
 }
-fun configureLogging() {
+fun configureLogging(): Logger {
     val logLevel = System.getenv("LOG_LEVEL") ?: "INFO"
 
     val level = when (logLevel.uppercase()) {
@@ -39,4 +39,5 @@ fun configureLogging() {
     val logger = getLogger() as ch.qos.logback.classic.Logger
     logger.level = level
     logger.info("default logger initialized")
+    return logger
 }

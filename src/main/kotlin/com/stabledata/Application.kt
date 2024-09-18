@@ -13,21 +13,22 @@ import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
 
 fun main() {
-    val port = System.getenv("PORT")?.toIntOrNull() ?: 8080
+    val port = envInt("PORT")
     embeddedServer(Netty, port, host = "0.0.0.0", module = Application::module).start(wait = true)
 }
 
-fun Application.module() {
-    configureLogging()
+fun Application.module(withoutDatabase: Boolean = false) {
+    val logger = configureLogging()
 
     // cors, auth etc. (below)
     staticConfig()
 
-    // injectables for testing
-    val logger = getLogger()
+    // db connection (if not unit testing)
+    if (!withoutDatabase) {
+        Database.connect(hikari())
+    }
 
     // schema endpoints
-    Database.connect(hikari())
     configureSchemaRouting(logger)
 
     // static temp routes for now
@@ -36,6 +37,8 @@ fun Application.module() {
     // documentation
     configureDocsRouting()
 }
+
+
 
 /*
 Handles non-injectable setup

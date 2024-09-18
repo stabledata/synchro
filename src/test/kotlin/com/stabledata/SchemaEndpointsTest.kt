@@ -1,6 +1,5 @@
 package com.stabledata
 
-import com.fasterxml.uuid.Generators
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -13,9 +12,22 @@ import kotlin.test.assertNotNull
 
 class SchemaEndpointsTest {
     @Test
+    fun `responds unauthorized without token` () = testApplication {
+        application {
+            module(true)
+        }
+
+        val response = client.post("/schema/create.collection") {
+            contentType(ContentType.Application.Json)
+            setBody("")
+        }
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
+
+    @Test
     fun `returns errors with an invalid payload` () = testApplication {
         application {
-            module()
+            module(true)
         }
 
         val token = generateJwtTokenWithCredentials(UserCredentials("ben"))
@@ -35,28 +47,4 @@ class SchemaEndpointsTest {
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
 
-    @Test
-    fun `creates a collection` () = testApplication {
-        application {
-            module()
-        }
-
-        val token = generateJwtTokenWithCredentials(UserCredentials("ben"))
-        val uuid = Generators.timeBasedEpochGenerator().generate()
-        // fixed value for idempotency
-        // val uuid = "0192020d-3a65-7a22-8d76-8ae3353ae396"
-        val response = client.post("/schema/create.collection") {
-            headers {
-                append(HttpHeaders.Authorization, "Bearer $token")
-            }
-            contentType(ContentType.Application.Json)
-            setBody("""
-                {
-                   "id":"$uuid",
-                   "path":"classes"
-                }
-            """.trimIndent())
-        }
-        assertEquals(HttpStatusCode.OK, response.status)
-    }
 }

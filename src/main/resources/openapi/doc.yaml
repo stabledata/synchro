@@ -39,6 +39,8 @@ paths:
           description: Collection created successfully
         '400':
           description: Invalid request payload
+        '401':
+          description: Unauthorized
 
   /schema/update.collection:
     post:
@@ -56,6 +58,8 @@ paths:
           description: Collection updated successfully
         '400':
           description: Invalid request payload
+        '401':
+          description: Unauthorized
         '404':
           description: Collection not found
 components:

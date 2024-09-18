@@ -44,7 +44,13 @@ tasks.register<JavaExec>("migrate") {
 
     // Pass this to the application as an argument
     args = listOf(task)
+}
 
+tasks.test {
+    useJUnitPlatform() // Ensure JUnit 5 is used for Kotest
+    testLogging {
+        events("passed", "skipped", "failed")
+    }
 }
 
 
@@ -87,10 +93,12 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
     testImplementation("io.ktor:ktor-server-test-host-jvm")
-    testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlin_version")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
     testImplementation("org.mockito:mockito-core:4.0.0")
     testImplementation("org.mockito:mockito-inline:4.0.0")
+    testImplementation("io.kotest:kotest-runner-junit5:5.9.0")
+    testImplementation("io.kotest:kotest-framework-engine:5.9.0")
 
 }
