@@ -24,25 +24,16 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
     routing {
         authenticate(JWT_NAME) {
             post("schema/create.collection") {
-
-                val (
-                    request,
-                    envelope,
-                    credentials,
-                    validation,
-                    stableEventId,
-                ) = callContextProvider(
+                val (request, envelope, credentials, validation) = callContextProvider(
                     call,
                     "create.collection.json"
-                ) { body ->
-                    CreateCollectionRequestBody.fromJSON(body)
-                }
+                ) { body -> CreateCollectionRequestBody.fromJSON(body)  }
 
                 if (!validation.first) {
                     return@post call.respond(HttpStatusCode.BadRequest, validation.second)
                 }
 
-                logger.debug("Create collection endpoint called by {} event id {}", credentials.email, stableEventId)
+                logger.debug("Create collection requested by {} event id {}", credentials.email, envelope.stableEventId)
 
                 val requestedCollectionId = UUID.fromString(request.id)
                 val response = CollectionsResponseBody(
@@ -52,9 +43,7 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
 
                 // try to find an event with existing id
                 // "best-effort idempotency"
-                val hasExistingLog = envelope.stableEventId?.let {
-                    LogsTable.findById(it)
-                } !== null
+                val hasExistingLog = LogsTable.findById(envelope.stableEventId) !== null
 
                 // also see if the table exits already
                 val existingSQL = DatabaseOperations.tableExistsAtPath(request.path)
@@ -79,19 +68,20 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
                         // log event
                         LogsTable.insert { log ->
                             log[collectionId] = requestedCollectionId
-                            log[eventId] = stableEventId
+                            log[eventId] = UUID.fromString(envelope.stableEventId)
                             log[eventType] = "collection.create"
                             log[actorId] = credentials.email
                             log[confirmedAt] = response.confirmedAt
-                            log[createdAt] = envelope.stableEventCreatedAt ?: System.currentTimeMillis()
+                            log[createdAt] = envelope.stableEventCreatedAt
                             log[path] = request.path
                         }
                     }
-
                 } catch(e: ExposedSQLException) {
                     logger.error("Unable to create collection: ${e.localizedMessage}")
                     return@post call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
                 }
+
+                logger.debug("Collection created at path {}, with id {}", request.path, requestedCollectionId)
 
                 return@post call.respond(
                     HttpStatusCode.OK,

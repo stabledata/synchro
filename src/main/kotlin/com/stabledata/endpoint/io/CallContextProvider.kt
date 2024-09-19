@@ -2,25 +2,22 @@ package com.stabledata.endpoint.io
 
 import EnvelopeKey
 import HeaderEnvelope
-import com.fasterxml.uuid.Generators
 import com.stabledata.plugins.MissingCredentialsException
 import com.stabledata.plugins.UserCredentials
 import com.stabledata.validateStringAgainstJSONSchema
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
-import java.util.*
 
 data class CallContext<T> (
     val request: T,
     val envelope: HeaderEnvelope,
     val credentials: UserCredentials,
     val validation: Pair<Boolean, List<String>>,
-    val stableEventId: UUID
 )
 suspend fun <T> callContextProvider(
     call: ApplicationCall,
-    bodyValidationSchemaLocation: String?,
+    validationJSONSchema: String?,
     bodyRequestMapper: (body: String) -> T
 ): CallContext<T> {
 
@@ -29,11 +26,11 @@ suspend fun <T> callContextProvider(
     val credentials = call.principal<UserCredentials>()
         ?: throw MissingCredentialsException()
 
-    val (isValid, errors) = if (bodyValidationSchemaLocation.isNullOrEmpty()) {
+    val (isValid, errors) = if (validationJSONSchema.isNullOrEmpty()) {
         Pair(true, emptyList())
     } else {
         validateStringAgainstJSONSchema(
-            bodyValidationSchemaLocation,
+            validationJSONSchema,
             body
         )
     }
@@ -42,11 +39,6 @@ suspend fun <T> callContextProvider(
         request = bodyRequestMapper(body),
         envelope = envelope,
         credentials = credentials,
-        validation = Pair(isValid, errors),
-        stableEventId = if (envelope.stableEventId?.isNotBlank() == true) {
-            UUID.fromString(envelope.stableEventId)
-        } else {
-            Generators.timeBasedEpochGenerator().generate()
-        }
+        validation = Pair(isValid, errors)
     )
 }
