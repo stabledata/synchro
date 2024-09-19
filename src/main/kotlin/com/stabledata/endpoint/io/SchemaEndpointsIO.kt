@@ -28,6 +28,7 @@ data class CreateCollectionRequestBody (
 }
 
 @Serializable
-data class CreateCollectionRequestResponseBody (
-    val id: String
+data class CollectionsResponseBody (
+    val id: String,
+    val confirmedAt: Long
 )

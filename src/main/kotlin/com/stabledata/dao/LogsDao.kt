@@ -25,11 +25,10 @@ object LogsTable : Table("stable.logs") {
     // later when writing data...
     // val documentId = uuid("document_id").nullable() // Nullable because it's optional
 
-
-    fun findById(logId: UUID): ResultRow? {
+    fun findById(logId: String): ResultRow? {
         return transaction {
             LogsTable
-                .select { eventId eq logId }
+                .select { eventId eq UUID.fromString(logId) }
                 .singleOrNull()
         }
     }

@@ -1,5 +1,6 @@
 package com.stabledata
 
+import com.stabledata.plugins.UserCredentials
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -13,11 +14,9 @@ class AuthTest {
 
     @Test
     fun `authorizes calls with ktor generated tokens` () = testApplication {
-        application {
-            module()
-        }
+        application { module() }
 
-        val token = generateJwtTokenWithCredentials(UserCredentials("ben"))
+        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
         val response = client.get("/secure") {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $token")
@@ -29,8 +28,22 @@ class AuthTest {
     }
 
     @Test
+    fun `requires team to claim to match` () = testApplication {
+        application { module() }
+
+        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "NOT.test"))
+        val response = client.get("/secure") {
+            headers {
+                append(HttpHeaders.Authorization, "Bearer $token")
+            }
+
+        }
+        assertEquals(HttpStatusCode.Unauthorized, response.status)
+    }
+
+    @Test
     fun `generate JWT` () {
-        val jwt = generateJwtTokenWithCredentials(UserCredentials("ben"))
+        val jwt = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
         println(jwt)
     }
 

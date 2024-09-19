@@ -2,12 +2,8 @@ package com.stabledata
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import org.jetbrains.exposed.dao.id.UUIDTable
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.*
+
 
 fun hikari (): HikariDataSource {
     val hikariConfig = HikariConfig().apply {
@@ -35,7 +31,7 @@ object DatabaseOperations {
 
     fun tableExistsAtPath(path: String): Boolean {
         val convertedPath = convertPath(path)
-        val exists = """
+        val existsQuery = """
             SELECT EXISTS (
                 SELECT 1 
                 FROM information_schema.tables 
@@ -43,13 +39,13 @@ object DatabaseOperations {
                 AND table_name = '$convertedPath'
             );
             """.trimIndent()
-        return transaction {
-            val result = exec(exists) {
+        val existsResult = transaction {
+            exec(existsQuery) {
                 it.next() // Move to the first result
                 it.getBoolean(1) // Get the boolean value of the result
             }
-            return@transaction result ?: false
         }
+        return existsResult ?: false
     }
 
 }

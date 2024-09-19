@@ -4,6 +4,7 @@ import io.github.cdimascio.dotenv.Dotenv
 
 class MissingEnvironmentVariable(k: String): Exception("Missing environment variable at key $k")
 
+
 val dotenv: Dotenv = Dotenv.configure().ignoreIfMissing().load()
 
 fun envString(key: String): String {

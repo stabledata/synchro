@@ -27,6 +27,9 @@ paths:
     post:
       summary: Create a new collection
       operationId: createCollection
+      parameters:
+        - $ref: '#/components/parameters/XStableEventId'
+        - $ref: '#/components/parameters/XStableEventCreated'
       requestBody:
         description: Payload for creating a new collection
         required: true
@@ -46,6 +49,9 @@ paths:
     post:
       summary: Update an existing collection
       operationId: updateCollection
+      parameters:
+        - $ref: '#/components/parameters/XStableEventId'
+        - $ref: '#/components/parameters/XStableEventCreated'
       requestBody:
         description: Payload for updating an existing collection
         required: true
@@ -62,5 +68,20 @@ paths:
           description: Unauthorized
         '404':
           description: Collection not found
+
 components:
   schemas: {}
+  parameters:
+    XStableEventId:
+      name: x-stable-event-id
+      in: header
+      description: Client generated event identifier, should be UUID v7
+      schema:
+        type: string
+    XStableEventCreated:
+      name: x-stable-event-created
+      in: header
+      description: Client event creation timestamp
+      schema:
+        type: number
+

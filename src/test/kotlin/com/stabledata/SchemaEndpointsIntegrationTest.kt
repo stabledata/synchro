@@ -1,10 +1,10 @@
 package com.stabledata
 
 import com.fasterxml.uuid.Generators
+import com.stabledata.plugins.UserCredentials
 import io.github.serpro69.kfaker.Faker
 import io.kotest.core.spec.style.WordSpec
 import io.ktor.client.request.*
-import io.ktor.client.request.headers
 import io.ktor.http.*
 import io.ktor.server.testing.*
 import kotlin.test.assertEquals
@@ -15,7 +15,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
 
             val faker = Faker()
             val collectionId = Generators.timeBasedEpochGenerator().generate()
-            val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.co"))
+            val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.co", "test"))
             val collectionPath = faker.lorem.words()
 
             "create a new collection" {

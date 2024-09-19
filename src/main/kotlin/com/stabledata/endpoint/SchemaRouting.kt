@@ -1,19 +1,18 @@
 package com.stabledata.endpoint
 
-import com.stabledata.*
+import com.stabledata.DatabaseOperations
 import com.stabledata.dao.CollectionsTable
 import com.stabledata.dao.LogsTable
-import com.stabledata.plugins.JWT_NAME
-import com.stabledata.plugins.MissingCredentialsException
-import com.stabledata.plugins.SynchroUserCredentials
+import com.stabledata.endpoint.io.CollectionsResponseBody
 import com.stabledata.endpoint.io.CreateCollectionRequestBody
-import com.stabledata.endpoint.io.CreateCollectionRequestResponseBody
+import com.stabledata.endpoint.io.callContextProvider
+import com.stabledata.getLogger
+import com.stabledata.plugins.JWT_NAME
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import io.ktor.server.request.*
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -24,66 +23,71 @@ import java.util.*
 fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
     routing {
         authenticate(JWT_NAME) {
-
             post("schema/create.collection") {
-                // validate body
-                val body = call.receiveText()
 
-                val credentials = call.principal<SynchroUserCredentials>()
-                    ?: throw MissingCredentialsException()
-
-                logger.debug("Create collection endpoint called with: $body by ${credentials.email}")
-
-                val (isValidPayload, errors) = validateStringAgainstJSONSchema(
-                    "create.collection.json",
-                    body
-                )
-
-                if (!isValidPayload) {
-                    return@post call.respond(HttpStatusCode.BadRequest, errors)
+                val (
+                    request,
+                    envelope,
+                    credentials,
+                    validation,
+                    stableEventId,
+                ) = callContextProvider(
+                    call,
+                    "create.collection.json"
+                ) { body ->
+                    CreateCollectionRequestBody.fromJSON(body)
                 }
 
-                val requestBody = CreateCollectionRequestBody.fromJSON(body)
-                val id = UUID.fromString(requestBody.id)
+                if (!validation.first) {
+                    return@post call.respond(HttpStatusCode.BadRequest, validation.second)
+                }
+
+                logger.debug("Create collection endpoint called by {} event id {}", credentials.email, stableEventId)
+
+                val requestedCollectionId = UUID.fromString(request.id)
+                val response = CollectionsResponseBody(
+                    id = requestedCollectionId.toString(),
+                    confirmedAt = System.currentTimeMillis()
+                )
 
                 // try to find an event with existing id
                 // "best-effort idempotency"
-                val existingLog = LogsTable.findById(id)
+                val hasExistingLog = envelope.stableEventId?.let {
+                    LogsTable.findById(it)
+                } !== null
 
                 // also see if the table exits already
-                val existingSQL = DatabaseOperations.tableExistsAtPath(requestBody.path)
-                if (existingLog !== null || existingSQL) {
+                val existingSQL = DatabaseOperations.tableExistsAtPath(request.path)
+
+                // if either are true, we have a conflict.
+                // TODO also handle the collection id itself?
+                if (hasExistingLog || existingSQL) {
                     return@post call.respond(
                         HttpStatusCode.Conflict,
-                        CreateCollectionRequestResponseBody(
-                            id = id.toString()
-                        )
+                        response
                     )
                 }
 
-
                 try {
                     transaction {
-
                         // create new table at the path
-                        exec(DatabaseOperations.createTableAtPathSQL(requestBody.path))
+                        exec(DatabaseOperations.createTableAtPathSQL(request.path))
 
                         // add new row to stable.collections table
-                        val collectionId = CollectionsTable.insertRowFromRequest(requestBody)
+                        CollectionsTable.insertRowFromRequest(request)
 
                         // log event
                         LogsTable.insert { log ->
-                            log[eventId] = id
+                            log[collectionId] = requestedCollectionId
+                            log[eventId] = stableEventId
                             log[eventType] = "collection.create"
                             log[actorId] = credentials.email
-                            log[confirmedAt] = System.currentTimeMillis()
-                            // FIXME -- this should come from payload "wrapper"
-                            log[createdAt] = System.currentTimeMillis()
-                            log[path] = requestBody.path
-                            log[this.collectionId] = collectionId
+                            log[confirmedAt] = response.confirmedAt
+                            log[createdAt] = envelope.stableEventCreatedAt ?: System.currentTimeMillis()
+                            log[path] = request.path
                         }
-
                     }
+
                 } catch(e: ExposedSQLException) {
                     logger.error("Unable to create collection: ${e.localizedMessage}")
                     return@post call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
@@ -91,9 +95,7 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
 
                 return@post call.respond(
                     HttpStatusCode.OK,
-                    CreateCollectionRequestResponseBody(
-                        id = id.toString()
-                    )
+                    response
                 )
             }
         }

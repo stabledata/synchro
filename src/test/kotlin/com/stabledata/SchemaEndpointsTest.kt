@@ -1,5 +1,6 @@
 package com.stabledata
 
+import com.stabledata.plugins.UserCredentials
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -30,7 +31,7 @@ class SchemaEndpointsTest {
             module(true)
         }
 
-        val token = generateJwtTokenWithCredentials(UserCredentials("ben"))
+        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
         val response = client.post("/schema/create.collection") {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $token")

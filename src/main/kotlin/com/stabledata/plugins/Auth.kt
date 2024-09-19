@@ -1,5 +1,6 @@
 package com.stabledata.plugins
 
+import com.stabledata.envString
 import com.stabledata.getVerifier
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -13,17 +14,30 @@ const val JWT_REALM = "stable-jwt-realm"
 
 class MissingCredentialsException : Exception("Unable to retrieve credentials from request")
 
+
 @Serializable
-data class SynchroUserCredentials (
-    val email: String
+data class UserCredentials (
+    val email: String,
+    val team: String
 ) : Principal {
     companion object {
-        fun fromJWTCredential (credential: JWTCredential): SynchroUserCredentials {
-            return SynchroUserCredentials(email = credential.payload.getClaim("email").asString())
+        fun fromJWTCredential (credential: JWTCredential): UserCredentials {
+            return UserCredentials(
+                email = credential.payload.getClaim("email").asString(),
+                team = credential.payload.getClaim("team").asString()
+            )
         }
 
         fun validateJWTCredential (credential: JWTCredential): Boolean {
-            return !credential.payload.getClaim("email").isNull
+            val team = credential.payload.getClaim("team")
+            val hasNullRequiredClaims = (
+                credential.payload.getClaim("email").isNull ||
+                team.isNull
+            )
+
+            val credentialsMatchDeployEnv = team.asString().equals(envString("STABLE_TEAM"))
+
+            return credentialsMatchDeployEnv && !hasNullRequiredClaims
         }
     }
 
@@ -35,8 +49,8 @@ fun Application.configureAuth () {
             realm = JWT_REALM
             verifier(getVerifier())
             validate { credential ->
-                if (SynchroUserCredentials.validateJWTCredential(credential)) {
-                    SynchroUserCredentials.fromJWTCredential(credential)
+                if (UserCredentials.validateJWTCredential(credential)) {
+                    UserCredentials.fromJWTCredential(credential)
                 } else {
                     null
                 }

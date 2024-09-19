@@ -1,13 +1,14 @@
 package com.stabledata.dao
 
-import com.stabledata.convertPath
 import com.stabledata.endpoint.io.CreateCollectionRequestBody
-import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.Table
+
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
-import java.util.UUID
+import java.util.*
 
-object CollectionsTable : UUIDTable("stable.collections") {
+object CollectionsTable : Table("stable.collections") {
+    val id = uuid("id")
     val path = text("path")
     val type = text("type").nullable()
     val label = text("label").nullable()
@@ -15,16 +16,17 @@ object CollectionsTable : UUIDTable("stable.collections") {
     val description = text("description").nullable()
 
     fun insertRowFromRequest(body: CreateCollectionRequestBody): UUID {
-        val insertedId = transaction {
+        transaction {
             CollectionsTable.insert { row ->
+                row[id] = UUID.fromString(body.id)
                 row[path] = body.path
                 row[type] = body.type
                 row[label] = body.label
                 row[icon] = body.icon
                 row[description] = body.description
-            } get CollectionsTable.id
+            }
         }
-        return UUID.fromString(insertedId.value.toString())
+        return UUID.fromString(body.id)
     }
 
 }
