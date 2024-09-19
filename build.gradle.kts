@@ -100,5 +100,6 @@ dependencies {
     testImplementation("org.mockito:mockito-inline:4.0.0")
     testImplementation("io.kotest:kotest-runner-junit5:5.9.0")
     testImplementation("io.kotest:kotest-framework-engine:5.9.0")
+    testImplementation("io.github.serpro69:kotlin-faker:1.16.0")
 
 }

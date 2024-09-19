@@ -1,6 +1,7 @@
 package com.stabledata
 
 import com.fasterxml.uuid.Generators
+import io.github.serpro69.kfaker.Faker
 import io.kotest.core.spec.style.WordSpec
 import io.ktor.client.request.*
 import io.ktor.client.request.headers
@@ -12,8 +13,10 @@ class SchemaEndpointsIntegrationTest : WordSpec({
 
     "schema collection endpoints" should {
 
+            val faker = Faker()
             val collectionId = Generators.timeBasedEpochGenerator().generate()
             val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.co"))
+            val collectionPath = faker.lorem.words()
 
             "create a new collection" {
                 testApplication {
@@ -29,7 +32,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                             """
                         {
                            "id":"$collectionId",
-                           "path":"classes"
+                           "path":"$collectionPath"
                         }
                     """.trimIndent()
                         )
@@ -52,7 +55,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                             """
                         {
                            "id":"$collectionId",
-                           "path":"classes"
+                           "path":"$collectionPath"
                         }
                     """.trimIndent()
                         )
