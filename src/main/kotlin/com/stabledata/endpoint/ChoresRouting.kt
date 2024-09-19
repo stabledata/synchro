@@ -1,5 +1,6 @@
-package com.stabledata.plugins
+package com.stabledata.endpoint
 
+import com.stabledata.plugins.JWT_NAME
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
@@ -11,8 +12,8 @@ fun Application.configureRouting(logger: Logger) {
     routing {
 
         get("/") {
-            logger.info("Hello world endpoint called")
-            call.respondText("Hello World!")
+            logger.info("Healthcheck / endpoint called.")
+            call.respondText("ok")
         }
         authenticate(JWT_NAME) {
             get("/secure") {

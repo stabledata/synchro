@@ -7,7 +7,7 @@ import kotlinx.serialization.json.Json.Default.parseToJsonElement
 import java.nio.file.Files
 import java.nio.file.Paths
 
-fun validatePayloadAgainstSchema(schemaFileName: String, payload: String): Pair<Boolean, List<String>> {
+fun validateStringAgainstJSONSchema(schemaFileName: String, payload: String): Pair<Boolean, List<String>> {
     val schemaLocation = "src/main/resources/openapi/schemas/$schemaFileName"
     val schemaJson = Files.readString(Paths.get(schemaLocation))
     val schema = JsonSchema.fromDefinition(schemaJson)

@@ -1,7 +1,9 @@
-package com.stabledata.plugins.routing.io
+package com.stabledata.endpoint.io
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+
+
 
 @Serializable
 data class CreateCollectionRequestBody (

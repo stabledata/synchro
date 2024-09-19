@@ -14,7 +14,7 @@ class ValidatorTest {
             }
         """.trimIndent()
 
-        val (isValid, errors) = validatePayloadAgainstSchema("create.collection.json", validJSON)
+        val (isValid, errors) = validateStringAgainstJSONSchema("create.collection.json", validJSON)
         assert(isValid)
         assert(errors.isEmpty())
     }
@@ -27,7 +27,7 @@ class ValidatorTest {
             }
         """.trimIndent()
 
-        val (isValid, errors) = validatePayloadAgainstSchema("create.collection.json", invalidJSON)
+        val (isValid, errors) = validateStringAgainstJSONSchema("create.collection.json", invalidJSON)
         assert(!isValid)
         assert(errors.isNotEmpty())
     }
@@ -39,7 +39,7 @@ class ValidatorTest {
             Server error
         """.trimIndent()
 
-        val (isValid, errors) = validatePayloadAgainstSchema("create.collection.json", notActuallyJSON)
+        val (isValid, errors) = validateStringAgainstJSONSchema("create.collection.json", notActuallyJSON)
         assert(!isValid)
         assert(errors.isEmpty())
     }

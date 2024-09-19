@@ -1,7 +1,9 @@
 package com.stabledata
 
+import HeaderEnvelopeParser
 import com.stabledata.plugins.*
-import com.stabledata.plugins.routing.configureSchemaRouting
+import com.stabledata.endpoint.configureRouting
+import com.stabledata.endpoint.configureSchemaRouting
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -47,6 +49,7 @@ fun Application.staticConfig () {
     install(ContentNegotiation) {
         json(Json { prettyPrint = true })
     }
+    install(HeaderEnvelopeParser)
     install(CORS) {
         anyHost()
         allowHeader(HttpHeaders.ContentType)

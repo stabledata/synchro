@@ -1,7 +1,7 @@
 package com.stabledata
 
 import ch.qos.logback.classic.Logger
-import com.stabledata.plugins.configureRouting
+import com.stabledata.endpoint.configureRouting
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

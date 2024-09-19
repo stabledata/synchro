@@ -1,11 +1,13 @@
-package com.stabledata.plugins.routing
+package com.stabledata.endpoint
 
 import com.stabledata.*
+import com.stabledata.dao.CollectionsTable
+import com.stabledata.dao.LogsTable
 import com.stabledata.plugins.JWT_NAME
 import com.stabledata.plugins.MissingCredentialsException
 import com.stabledata.plugins.SynchroUserCredentials
-import com.stabledata.plugins.routing.io.CreateCollectionRequestBody
-import com.stabledata.plugins.routing.io.CreateCollectionRequestResponseBody
+import com.stabledata.endpoint.io.CreateCollectionRequestBody
+import com.stabledata.endpoint.io.CreateCollectionRequestResponseBody
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -26,11 +28,13 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
             post("schema/create.collection") {
                 // validate body
                 val body = call.receiveText()
+
                 val credentials = call.principal<SynchroUserCredentials>()
                     ?: throw MissingCredentialsException()
 
                 logger.debug("Create collection endpoint called with: $body by ${credentials.email}")
-                val (isValidPayload, errors) = validatePayloadAgainstSchema(
+
+                val (isValidPayload, errors) = validateStringAgainstJSONSchema(
                     "create.collection.json",
                     body
                 )
@@ -44,10 +48,10 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
 
                 // try to find an event with existing id
                 // "best-effort idempotency"
-                val existingLog = Tables.Logs.findById(id)
+                val existingLog = LogsTable.findById(id)
 
                 // also see if the table exits already
-                val existingSQL = Tables.Collections.existsAtPath(requestBody.path)
+                val existingSQL = DatabaseOperations.tableExistsAtPath(requestBody.path)
                 if (existingLog !== null || existingSQL) {
                     return@post call.respond(
                         HttpStatusCode.Conflict,
@@ -57,26 +61,18 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
                     )
                 }
 
-                // write logs and broadcast to ably in transaction
+
                 try {
                     transaction {
 
-                        // create table
-                        exec(
-                            Tables.Collections.createAtPathSQL(requestBody.path)
-                        )
+                        // create new table at the path
+                        exec(DatabaseOperations.createTableAtPathSQL(requestBody.path))
 
-                        // add to stable.collections table
-                        val collectionId = Tables.Collections.insert { collection ->
-                            collection[path] = requestBody.path
-                            collection[type] = requestBody.type
-                            collection[label] = requestBody.label
-                            collection[icon] = requestBody.icon
-                            collection[description] = requestBody.description
-                        } get Tables.Collections.id
+                        // add new row to stable.collections table
+                        val collectionId = CollectionsTable.insertRowFromRequest(requestBody)
 
                         // log event
-                        Tables.Logs.insert { log ->
+                        LogsTable.insert { log ->
                             log[eventId] = id
                             log[eventType] = "collection.create"
                             log[actorId] = credentials.email
@@ -84,7 +80,7 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
                             // FIXME -- this should come from payload "wrapper"
                             log[createdAt] = System.currentTimeMillis()
                             log[path] = requestBody.path
-                            log[this.collectionId] = UUID.fromString(collectionId.value.toString())
+                            log[this.collectionId] = collectionId
                         }
 
                     }
