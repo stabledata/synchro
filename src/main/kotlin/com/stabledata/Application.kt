@@ -1,9 +1,11 @@
 package com.stabledata
 
 import HeaderEnvelopeParser
-import com.stabledata.plugins.*
 import com.stabledata.endpoint.configureRouting
 import com.stabledata.endpoint.configureSchemaRouting
+import com.stabledata.plugins.Validation
+import com.stabledata.plugins.configureAuth
+import com.stabledata.plugins.configureDocsRouting
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
@@ -55,5 +57,6 @@ fun Application.staticConfig () {
         allowHeader(HttpHeaders.ContentType)
         allowMethod(HttpMethod.Get)
     }
+    install(Validation)
     configureAuth()
 }

@@ -1,13 +1,15 @@
 package com.stabledata.endpoint
 
+import EnvelopeKey
 import com.stabledata.DatabaseOperations
 import com.stabledata.dao.CollectionsTable
 import com.stabledata.dao.LogsTable
 import com.stabledata.endpoint.io.CollectionsResponseBody
 import com.stabledata.endpoint.io.CreateCollectionRequestBody
-import com.stabledata.endpoint.io.callContextProvider
 import com.stabledata.getLogger
 import com.stabledata.plugins.JWT_NAME
+import com.stabledata.plugins.UserCredentials
+import com.stabledata.plugins.Validation.Plugin.validate
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -24,18 +26,23 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
     routing {
         authenticate(JWT_NAME) {
             post("schema/create.collection") {
-                val (request, envelope, credentials, validation) = callContextProvider(
-                    call,
-                    "create.collection.json"
-                ) { body -> CreateCollectionRequestBody.fromJSON(body)  }
-
-                if (!validation.first) {
-                    return@post call.respond(HttpStatusCode.BadRequest, validation.second)
+                val body = validate("create.collection.json") { isValid, errors ->
+                    if (!isValid) {
+                        return@validate call.respond(HttpStatusCode.BadRequest, errors)
+                    }
                 }
+                val createCollectionRequest = CreateCollectionRequestBody.fromJSON(body)
+                val eventEnvelope = call.attributes[EnvelopeKey]
+                val userCredentials = call.principal<UserCredentials>()
+                    ?: return@post call.respond(
+                        HttpStatusCode.BadRequest,
+                        "Unable to validate request credentials"
+                )
 
-                logger.debug("Create collection requested by {} event id {}", credentials.email, envelope.stableEventId)
 
-                val requestedCollectionId = UUID.fromString(request.id)
+                logger.debug("Create collection requested by {} event id {}", userCredentials.email, eventEnvelope.eventId)
+
+                val requestedCollectionId = UUID.fromString(createCollectionRequest.id)
                 val response = CollectionsResponseBody(
                     id = requestedCollectionId.toString(),
                     confirmedAt = System.currentTimeMillis()
@@ -43,10 +50,10 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
 
                 // try to find an event with existing id
                 // "best-effort idempotency"
-                val hasExistingLog = LogsTable.findById(envelope.stableEventId) !== null
+                val hasExistingLog = LogsTable.findById(eventEnvelope.eventId) !== null
 
                 // also see if the table exits already
-                val existingSQL = DatabaseOperations.tableExistsAtPath(request.path)
+                val existingSQL = DatabaseOperations.tableExistsAtPath(createCollectionRequest.path)
 
                 // if either are true, we have a conflict.
                 // TODO also handle the collection id itself?
@@ -60,20 +67,20 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
                 try {
                     transaction {
                         // create new table at the path
-                        exec(DatabaseOperations.createTableAtPathSQL(request.path))
+                        exec(DatabaseOperations.createTableAtPathSQL(createCollectionRequest.path))
 
                         // add new row to stable.collections table
-                        CollectionsTable.insertRowFromRequest(request)
+                        CollectionsTable.insertRowFromRequest(createCollectionRequest)
 
                         // log event
                         LogsTable.insert { log ->
                             log[collectionId] = requestedCollectionId
-                            log[eventId] = UUID.fromString(envelope.stableEventId)
+                            log[eventId] = UUID.fromString(eventEnvelope.eventId)
                             log[eventType] = "collection.create"
-                            log[actorId] = credentials.email
+                            log[actorId] = userCredentials.email
                             log[confirmedAt] = response.confirmedAt
-                            log[createdAt] = envelope.stableEventCreatedAt
-                            log[path] = request.path
+                            log[createdAt] = eventEnvelope.createdAt
+                            log[path] = createCollectionRequest.path
                         }
                     }
                 } catch(e: ExposedSQLException) {
@@ -81,7 +88,7 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
                     return@post call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
                 }
 
-                logger.debug("Collection created at path {}, with id {}", request.path, requestedCollectionId)
+                logger.debug("Collection created at path {}, with id {}", createCollectionRequest.path, requestedCollectionId)
 
                 return@post call.respond(
                     HttpStatusCode.OK,

@@ -12,9 +12,6 @@ import kotlinx.serialization.Serializable
 const val JWT_NAME = "stable-jwt-auth"
 const val JWT_REALM = "stable-jwt-realm"
 
-class MissingCredentialsException : Exception("Unable to retrieve credentials from request")
-
-
 @Serializable
 data class UserCredentials (
     val email: String,
