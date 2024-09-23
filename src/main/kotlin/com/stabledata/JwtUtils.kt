@@ -21,6 +21,11 @@ fun getStableJwtSecret(): String {
          .sign(Algorithm.HMAC256(getStableJwtSecret()))
  }
 
+fun generateTokenForTesting(): String {
+    val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
+    return token
+}
+
 fun getVerifier (): JWTVerifier {
     val secret = getStableJwtSecret()
     val algorithm = Algorithm.HMAC256(secret)

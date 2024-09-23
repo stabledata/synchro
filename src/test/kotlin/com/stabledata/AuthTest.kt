@@ -16,7 +16,7 @@ class AuthTest {
     fun `authorizes calls with ktor generated tokens` () = testApplication {
         application { module() }
 
-        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
+        val token = generateTokenForTesting()
         val response = client.get("/secure") {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $token")
@@ -31,7 +31,7 @@ class AuthTest {
     fun `requires team to claim to match` () = testApplication {
         application { module() }
 
-        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "NOT.test"))
+        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "wrong.team"))
         val response = client.get("/secure") {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $token")
@@ -43,7 +43,7 @@ class AuthTest {
 
     @Test
     fun `generate JWT` () {
-        val jwt = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
+        val jwt = generateTokenForTesting()
         println(jwt)
     }
 

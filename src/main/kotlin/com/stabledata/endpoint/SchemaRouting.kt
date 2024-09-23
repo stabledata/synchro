@@ -31,7 +31,7 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
                         return@validate call.respond(HttpStatusCode.BadRequest, errors)
                     }
                 }
-                val createCollectionRequest = CreateCollectionRequestBody.fromJSON(body)
+
                 val eventEnvelope = call.attributes[EnvelopeKey]
                 val userCredentials = call.principal<UserCredentials>()
                     ?: return@post call.respond(
@@ -42,6 +42,7 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
 
                 logger.debug("Create collection requested by {} event id {}", userCredentials.email, eventEnvelope.eventId)
 
+                val createCollectionRequest = CreateCollectionRequestBody.fromJSON(body)
                 val requestedCollectionId = UUID.fromString(createCollectionRequest.id)
                 val response = CollectionsResponseBody(
                     id = requestedCollectionId.toString(),
@@ -66,13 +67,13 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
 
                 try {
                     transaction {
-                        // create new table at the path
+                        // create new public schema table at the path (consider dot syntax schema support in future!)
                         exec(DatabaseOperations.createTableAtPathSQL(createCollectionRequest.path))
 
                         // add new row to stable.collections table
                         CollectionsTable.insertRowFromRequest(createCollectionRequest)
 
-                        // log event
+                        // log the event
                         LogsTable.insert { log ->
                             log[collectionId] = requestedCollectionId
                             log[eventId] = UUID.fromString(eventEnvelope.eventId)

@@ -86,9 +86,8 @@ fun repair() {
 }
 
 fun undo() {
-    // TODO:
-    //  Flyway makes you pay for this now, kk
-    //  make a nice error with decent instructions (licence in env)
+    //  Flyway makes you pay for this now
+    //  TODO: make a nice error with decent instructions (licence in env)
     //  instead of letting the paywall throw
    flywayViaHikari().undo()
 }

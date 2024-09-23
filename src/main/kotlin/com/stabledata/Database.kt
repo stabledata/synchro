@@ -3,18 +3,23 @@ package com.stabledata
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.jetbrains.exposed.sql.transactions.transaction
+import kotlin.concurrent.Volatile
 
 
+val DB_LOCK = Any()
+
+@Volatile
+var hikariDS: HikariDataSource? = null
 fun hikari (): HikariDataSource {
-    val hikariConfig = HikariConfig().apply {
-        driverClassName =  "org.postgresql.Driver"
-        jdbcUrl = envString("STABLE_JDBC_URL")
-        username = envString("STABLE_DB_USER")
-        password = envString("STABLE_DB_PASSWORD")
-        maximumPoolSize = envInt("STABLE_DB_MAX_CONNECTIONS")
+    return hikariDS ?: synchronized(DB_LOCK) {
+        hikariDS ?: HikariDataSource(HikariConfig().apply {
+            driverClassName = "org.postgresql.Driver"
+            jdbcUrl = envString("STABLE_JDBC_URL")
+            username = envString("STABLE_DB_USER")
+            password = envString("STABLE_DB_PASSWORD")
+            maximumPoolSize = envInt("STABLE_DB_MAX_CONNECTIONS")
+        }).also { hikariDS = it }
     }
-
-    return HikariDataSource(hikariConfig)
 }
 
 fun convertPath (path: String): String {

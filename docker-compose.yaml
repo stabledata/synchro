@@ -8,11 +8,18 @@ services:
       - "5432:5432"
     healthcheck:
       test: ['CMD', 'pg_isready', '-U', 'postgres']
-#    volumes:
-#      - 'pg-volume:/var/lib/postgresql/data'
+    volumes:
+      - 'pg-volume:/var/lib/postgresql/data'
     restart: always
     env_file:
       - .env
+    command: >
+      postgres -c log_statement=all
+               -c log_duration=on
+               -c log_min_error_statement=error
+               -c log_connections=on
+               -c log_disconnections=on
+               -c log_line_prefix='%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h'
 
-#volumes:
-#  pg-volume:
+volumes:
+  pg-volume:

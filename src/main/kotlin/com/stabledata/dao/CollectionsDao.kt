@@ -2,9 +2,7 @@ package com.stabledata.dao
 
 import com.stabledata.endpoint.io.CreateCollectionRequestBody
 import org.jetbrains.exposed.sql.Table
-
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 object CollectionsTable : Table("stable.collections") {
@@ -16,7 +14,7 @@ object CollectionsTable : Table("stable.collections") {
     val description = text("description").nullable()
 
     fun insertRowFromRequest(body: CreateCollectionRequestBody): UUID {
-        transaction {
+
             CollectionsTable.insert { row ->
                 row[id] = UUID.fromString(body.id)
                 row[path] = body.path
@@ -25,7 +23,7 @@ object CollectionsTable : Table("stable.collections") {
                 row[icon] = body.icon
                 row[description] = body.description
             }
-        }
+
         return UUID.fromString(body.id)
     }
 
