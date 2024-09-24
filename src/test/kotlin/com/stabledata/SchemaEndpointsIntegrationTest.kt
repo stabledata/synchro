@@ -30,11 +30,11 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                         contentType(ContentType.Application.Json)
                         setBody(
                             """
-                        {
-                           "id":"$collectionId",
-                           "path":"$collectionPath"
-                        }
-                    """.trimIndent()
+                                {
+                                   "id":"$collectionId",
+                                   "path":"$collectionPath"
+                                }
+                            """.trimIndent()
                         )
                     }
                     assertEquals(HttpStatusCode.OK, response.status)
