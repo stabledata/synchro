@@ -16,8 +16,8 @@ object CollectionsTable : Table("stable.collections") {
     fun insertRowFromRequest(body: CreateCollectionRequestBody): UUID {
 
             CollectionsTable.insert { row ->
-                row[id] = UUID.fromString(body.id)
                 row[path] = body.path
+                row[id] = UUID.fromString(body.id)
                 row[type] = body.type
                 row[label] = body.label
                 row[icon] = body.icon

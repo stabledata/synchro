@@ -12,7 +12,7 @@ import org.flywaydb.core.api.FlywayException
 
 import org.slf4j.Logger
 
-fun Application.configureRouting(logger: Logger) {
+fun Application.configureChoresRouting(logger: Logger) {
     routing {
 
         get("/") {

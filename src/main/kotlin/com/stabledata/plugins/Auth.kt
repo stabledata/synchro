@@ -1,12 +1,14 @@
 package com.stabledata.plugins
 
 import com.stabledata.envString
+import com.stabledata.getLogger
 import com.stabledata.getVerifier
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.server.response.*
+import io.ktor.util.pipeline.*
 import kotlinx.serialization.Serializable
 
 const val JWT_NAME = "stable-jwt-auth"
@@ -33,7 +35,6 @@ data class UserCredentials (
             )
 
             val credentialsMatchDeployEnv = team.asString().equals(envString("STABLE_TEAM"))
-
             return credentialsMatchDeployEnv && !hasNullRequiredClaims
         }
     }
@@ -57,4 +58,22 @@ fun Application.configureAuth () {
             }
         }
     }
+}
+
+suspend fun PipelineContext<Unit, ApplicationCall>.permissions(
+    operation: String,
+    block: suspend (Boolean) -> Unit
+): UserCredentials? {
+    val userCredentials = call.principal<UserCredentials>()
+    val logger = getLogger()
+    logger.debug("Checking permissions to $operation")
+    userCredentials?.let {
+        // TODO: check permissions based on event type e.g "collection.create"
+        val hasPermission = true
+        block(hasPermission)
+        return userCredentials
+    }
+
+    block(false)
+    return null
 }

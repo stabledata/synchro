@@ -1,5 +1,6 @@
 package com.stabledata
 
+import StableEventIdHeader
 import com.fasterxml.uuid.Generators
 import com.stabledata.plugins.UserCredentials
 import io.github.serpro69.kfaker.Faker
@@ -17,6 +18,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
             val collectionId = Generators.timeBasedEpochGenerator().generate()
             val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.co", "test"))
             val collectionPath = faker.lorem.words()
+            val eventId = Generators.timeBasedEpochGenerator().generate().toString()
 
             "create a new collection" {
                 testApplication {
@@ -26,6 +28,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                     val response = client.post("/schema/create.collection") {
                         headers {
                             append(HttpHeaders.Authorization, "Bearer $token")
+                            append(StableEventIdHeader, eventId)
                         }
                         contentType(ContentType.Application.Json)
                         setBody(
@@ -41,7 +44,31 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                 }
             }
 
-            "receives idempotent response on retries" {
+            "returns conflict on existing path" {
+                testApplication {
+                    application {
+                        module()
+                    }
+                    val response = client.post("/schema/create.collection") {
+                        headers {
+                            append(HttpHeaders.Authorization, "Bearer $token")
+                            append(StableEventIdHeader, eventId)
+                        }
+                        contentType(ContentType.Application.Json)
+                        setBody(
+                            """
+                            {
+                               "id":"$collectionId",
+                               "path":"new.path.in.old.envelope"
+                            }
+                        """.trimIndent()
+                        )
+                    }
+                    assertEquals(HttpStatusCode.Conflict, response.status)
+                }
+            }
+
+            "returns conflict on existing path" {
                 testApplication {
                     application {
                         module()
@@ -63,6 +90,8 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                     assertEquals(HttpStatusCode.Conflict, response.status)
                 }
             }
+
+
         }
 
 })

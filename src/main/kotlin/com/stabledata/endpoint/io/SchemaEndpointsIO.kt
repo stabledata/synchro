@@ -28,5 +28,6 @@ data class CreateCollectionRequestBody (
 @Serializable
 data class CollectionsResponseBody (
     val id: String,
-    val confirmedAt: Long
+    // what else do we care to send back really?
+    // val confirmedAt: Long
 )

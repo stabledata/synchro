@@ -1,22 +1,22 @@
 package com.stabledata.endpoint
 
-import EnvelopeKey
 import com.stabledata.DatabaseOperations
 import com.stabledata.dao.CollectionsTable
+import com.stabledata.dao.LogEntryBuilder
 import com.stabledata.dao.LogsTable
 import com.stabledata.endpoint.io.CollectionsResponseBody
 import com.stabledata.endpoint.io.CreateCollectionRequestBody
 import com.stabledata.getLogger
 import com.stabledata.plugins.JWT_NAME
-import com.stabledata.plugins.UserCredentials
-import com.stabledata.plugins.Validation.Plugin.validate
+import com.stabledata.plugins.permissions
+import com.stabledata.plugins.validate
+import idempotent
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.exceptions.ExposedSQLException
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.Logger
 import java.util.*
@@ -28,37 +28,51 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
             post("schema/create.collection") {
                 val body = validate("create.collection.json") { isValid, errors ->
                     if (!isValid) {
-                        return@validate call.respond(HttpStatusCode.BadRequest, errors)
+                        call.respond(HttpStatusCode.BadRequest, errors)
                     }
-                }
+                } ?: return@post
 
-                val eventEnvelope = call.attributes[EnvelopeKey]
-                val userCredentials = call.principal<UserCredentials>()
-                    ?: return@post call.respond(
-                        HttpStatusCode.BadRequest,
+                val logEntry = LogEntryBuilder().eventType("create.collection")
+
+                val userCredentials = permissions("create.collection") { hasPermission ->
+                    if (!hasPermission) {
+                        call.respond(HttpStatusCode.Forbidden, "You do not have permissions to perform this operation")
+                    }
+                } ?: return@post call.respond(
+                        HttpStatusCode.Unauthorized,
                         "Unable to validate request credentials"
-                )
+                    )
 
+                logEntry.actorId(userCredentials.email)
 
-                logger.debug("Create collection requested by {} event id {}", userCredentials.email, eventEnvelope.eventId)
+                val envelope = idempotent { existingRecord, envelope ->
+                    existingRecord?.let {
+                        call.respond(
+                            HttpStatusCode.Conflict,
+                            "Event id: ${existingRecord.id} was processed on ${existingRecord.confirmedAt}"
+                        )
+                        return@idempotent null
+                    }
+                    envelope
+                } ?: return@post
+
+                logEntry.id(envelope.eventId)
+                logEntry.createdAt(envelope.createdAt)
+
+                logger.debug("Create collection requested by {} event id {}", userCredentials.email, envelope.eventId)
 
                 val createCollectionRequest = CreateCollectionRequestBody.fromJSON(body)
                 val requestedCollectionId = UUID.fromString(createCollectionRequest.id)
+
+                logEntry.path(createCollectionRequest.path)
+                logEntry.confirmedAt(System.currentTimeMillis())
+
                 val response = CollectionsResponseBody(
                     id = requestedCollectionId.toString(),
-                    confirmedAt = System.currentTimeMillis()
                 )
 
-                // try to find an event with existing id
-                // "best-effort idempotency"
-                val hasExistingLog = LogsTable.findById(eventEnvelope.eventId) !== null
-
-                // also see if the table exits already
-                val existingSQL = DatabaseOperations.tableExistsAtPath(createCollectionRequest.path)
-
-                // if either are true, we have a conflict.
-                // TODO also handle the collection id itself?
-                if (hasExistingLog || existingSQL) {
+                // check if the table exists already
+                if (DatabaseOperations.tableExistsAtPath(createCollectionRequest.path)){
                     return@post call.respond(
                         HttpStatusCode.Conflict,
                         response
@@ -74,18 +88,10 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
                         CollectionsTable.insertRowFromRequest(createCollectionRequest)
 
                         // log the event
-                        LogsTable.insert { log ->
-                            log[collectionId] = requestedCollectionId
-                            log[eventId] = UUID.fromString(eventEnvelope.eventId)
-                            log[eventType] = "collection.create"
-                            log[actorId] = userCredentials.email
-                            log[confirmedAt] = response.confirmedAt
-                            log[createdAt] = eventEnvelope.createdAt
-                            log[path] = createCollectionRequest.path
-                        }
+                        LogsTable.insertLogEntry(logEntry.build())
                     }
                 } catch(e: ExposedSQLException) {
-                    logger.error("Unable to create collection: ${e.localizedMessage}")
+                    logger.error("Create collection transaction failed: ${e.localizedMessage}")
                     return@post call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
                 }
 

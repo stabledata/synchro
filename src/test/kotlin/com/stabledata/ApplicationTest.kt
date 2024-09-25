@@ -1,7 +1,8 @@
 package com.stabledata
 
-import ch.qos.logback.classic.Logger
-import com.stabledata.endpoint.configureRouting
+import com.stabledata.endpoint.configureChoresRouting
+import com.stabledata.endpoint.configureSchemaRouting
+import com.stabledata.plugins.configureDocsRouting
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -10,6 +11,7 @@ import io.ktor.server.testing.*
 import org.jetbrains.exposed.sql.Database
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito
+import org.slf4j.Logger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -25,7 +27,7 @@ class ApplicationTest {
         val response = client.get("/")
         Mockito.verify(mockLogger).info(anyString())
         assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("Hello World!", response.bodyAsText())
+        assertEquals("ok", response.bodyAsText())
     }
 
 
@@ -58,14 +60,16 @@ class ApplicationTest {
 }
 
 fun Application.testModule(logger: Logger) {
-    configureLogging()
-    staticConfig()
-    configureRouting(logger)
+    configurePlugins()
+    configureSchemaRouting(logger)
+    configureChoresRouting(logger)
+    configureDocsRouting()
 }
 
 fun Application.testModuleWithDatabase(logger: Logger) {
-    configureLogging()
-    staticConfig()
-    configureRouting(logger)
+    configurePlugins()
+    configureChoresRouting(logger)
+    configureSchemaRouting(logger)
+    configureDocsRouting()
     Database.connect(hikari())
 }

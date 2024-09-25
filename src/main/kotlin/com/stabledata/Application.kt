@@ -1,9 +1,7 @@
 package com.stabledata
 
-import HeaderEnvelopeParser
-import com.stabledata.endpoint.configureRouting
+import com.stabledata.endpoint.configureChoresRouting
 import com.stabledata.endpoint.configureSchemaRouting
-import com.stabledata.plugins.Validation
 import com.stabledata.plugins.configureAuth
 import com.stabledata.plugins.configureDocsRouting
 import io.ktor.http.*
@@ -21,24 +19,19 @@ fun main() {
     embeddedServer(Netty, port, host = "0.0.0.0", module = Application::module).start(wait = true)
 }
 
-fun Application.module(withoutDatabase: Boolean = false) {
+fun Application.module() {
     val logger = configureLogging()
 
     // cors, auth etc. (below)
-    staticConfig()
+    configurePlugins()
 
     // db connection (if not unit testing)
-    if (!withoutDatabase) {
-        Database.connect(hikari())
-    }
+    Database.connect(hikari())
 
-    // schema endpoints
+
+    // configure routes.
     configureSchemaRouting(logger)
-
-    // static temp routes for now
-    configureRouting(logger)
-
-    // documentation
+    configureChoresRouting(logger)
     configureDocsRouting()
 }
 
@@ -47,16 +40,14 @@ fun Application.module(withoutDatabase: Boolean = false) {
 /*
 Handles non-injectable setup
  */
-fun Application.staticConfig () {
+fun Application.configurePlugins () {
     install(ContentNegotiation) {
         json(Json { prettyPrint = true })
     }
-    install(HeaderEnvelopeParser)
     install(CORS) {
         anyHost()
         allowHeader(HttpHeaders.ContentType)
         allowMethod(HttpMethod.Get)
     }
-    install(Validation)
     configureAuth()
 }
