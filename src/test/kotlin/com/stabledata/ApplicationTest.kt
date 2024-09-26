@@ -49,6 +49,7 @@ class ApplicationTest {
         application {
             testModuleWithDatabase(mockLogger)
         }
+
         val token = generateTokenForTesting()
         val response = client.get("/migrate") {
             headers {

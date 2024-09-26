@@ -44,7 +44,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                 }
             }
 
-            "returns conflict on existing path" {
+            "returns conflict with existing event" {
                 testApplication {
                     application {
                         module()
