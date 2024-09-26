@@ -56,7 +56,6 @@ suspend fun <T>PipelineContext<Unit, ApplicationCall>.contextualize(
     logEntry.actorId(userCredentials.email)
     logEntry.id(envelope.eventId)
     logEntry.createdAt(envelope.createdAt)
-    logEntry.confirmedAt(System.currentTimeMillis())
 
     return RequestContext(
         body,

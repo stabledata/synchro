@@ -6,6 +6,9 @@ import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import java.util.*
 
+/**
+ * LogEntry records every single event that is synchronized across team workspaces in Stable
+ */
 data class LogEntry (
     val id: String,
     val path: String,
@@ -15,22 +18,28 @@ data class LogEntry (
     val confirmedAt: Long,
 )
 
+/**
+ * LogEntryBuilder is used to build stable.log entries for each synchronization event
+ */
 class LogEntryBuilder {
     var id: String? = null
     var path: String? = null
     var actorId: String? = null
     var eventType: String? = null
     var createdAt: Long? = null
-    var confirmedAt: Long? = null
+
 
     fun id(id: String) = apply { this.id = id }
     fun path(path: String) = apply { this.path = path }
     fun actorId(actorId: String) = apply { this.actorId = actorId }
     fun eventType(eventType: String) = apply { this.eventType = eventType }
     fun createdAt(createdAt: Long) = apply { this.createdAt = createdAt }
-    fun confirmedAt(confirmedAt: Long) = apply { this.confirmedAt = confirmedAt }
 
     private val providedExplainer = "must be provided to LogEntryBuilder"
+    /**
+     * build()
+     * @return LogEntry
+     */
     fun build(): LogEntry {
         return LogEntry(
             id = requireNotNull(id) { "id $providedExplainer" },
@@ -38,7 +47,7 @@ class LogEntryBuilder {
             actorId = requireNotNull(actorId) { "actorId $providedExplainer" },
             eventType = requireNotNull(eventType) { "eventType  $providedExplainer" },
             createdAt = requireNotNull(createdAt) { "createdAt timestamp $providedExplainer" },
-            confirmedAt = requireNotNull(confirmedAt) { "confirmedAt timestamp $providedExplainer" }
+            confirmedAt = System.currentTimeMillis()
         )
     }
 }

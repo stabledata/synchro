@@ -15,59 +15,53 @@ import io.ktor.server.routing.*
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.Logger
-import java.util.*
 
 
 fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
     routing {
         authenticate(JWT_NAME) {
             post("schema/create.collection") {
-
                 val (body, userCredentials, envelope, logEntry) = contextualize(
                     "create.collection"
-                ) {
-                    postData -> CreateCollectionRequestBody.fromJSON(postData)
-                }?: return@post
+                ) { postData ->
+                    CreateCollectionRequestBody.fromJSON(postData)
+                } ?: return@post
 
-                logger.debug("Create collection requested by {} event id {}", userCredentials.email, envelope.eventId)
+                logger.debug("Create collection requested by {} event id: {}", userCredentials.email, envelope.eventId)
+
+                // consider just putting this in the envelope?
                 logEntry.path(body.path)
 
-                val requestedCollectionId = UUID.fromString(body.id)
-                val response = CollectionsResponseBody(
-                    id = requestedCollectionId.toString(),
-                )
-
-                // check if the table exists already
-                if (DatabaseOperations.tableExistsAtPath(body.path)){
+                // check if the table exists already at the path
+                if (DatabaseOperations.tableExistsAtPath(body.path)) {
                     return@post call.respond(
                         HttpStatusCode.Conflict,
-                        response
+                        "path ${body.path} already exists"
                     )
                 }
 
                 try {
+                    val finalLogEntry = logEntry.build()
                     transaction {
-                        // create new public schema table at the path
-                        // consider dot syntax schema support in future!
                         exec(DatabaseOperations.createTableAtPathSQL(body.path))
-
-                        // add new row to stable.collections table
                         CollectionsTable.insertRowFromRequest(body)
-
-                        // log the event
-                        LogsTable.insertLogEntry(logEntry.build())
+                        LogsTable.insertLogEntry(finalLogEntry)
                     }
-                } catch(e: ExposedSQLException) {
+
+                    logger.debug("Collection created at path '{}', with id: {}", body.path, body.id)
+
+                    return@post call.respond(
+                        HttpStatusCode.OK,
+                        CollectionsResponseBody(
+                            id = body.id,
+                            confirmedAt = finalLogEntry.confirmedAt
+                        )
+                    )
+
+                } catch (e: ExposedSQLException) {
                     logger.error("Create collection transaction failed: ${e.localizedMessage}")
                     return@post call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
                 }
-
-                logger.debug("Collection created at path {}, with id {}", body.path, requestedCollectionId)
-
-                return@post call.respond(
-                    HttpStatusCode.OK,
-                    response
-                )
             }
         }
     }
