@@ -49,9 +49,7 @@ fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
                     transaction {
                         // create new public schema table at the path
                         // consider dot syntax schema support in future!
-                        exec(
-                            DatabaseOperations.createTableAtPathSQL(body.path)
-                        )
+                        exec(DatabaseOperations.createTableAtPathSQL(body.path))
 
                         // add new row to stable.collections table
                         CollectionsTable.insertRowFromRequest(body)

@@ -1,8 +1,9 @@
 package com.stabledata
 
-import StableEventIdHeader
 import com.fasterxml.uuid.Generators
+import com.stabledata.plugins.StableEventIdHeader
 import com.stabledata.plugins.UserCredentials
+import com.stabledata.plugins.eventId
 import io.github.serpro69.kfaker.Faker
 import io.kotest.core.spec.style.WordSpec
 import io.ktor.client.request.*
@@ -18,7 +19,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
             val collectionId = Generators.timeBasedEpochGenerator().generate()
             val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.co", "test"))
             val collectionPath = faker.lorem.words()
-            val eventId = Generators.timeBasedEpochGenerator().generate().toString()
+            val eventId = eventId()
 
             "create a new collection" {
                 testApplication {

@@ -33,6 +33,7 @@ class SchemaEndpointsTest {
         }
 
         val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
+
         val response = client.post("/schema/create.collection") {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $token")
@@ -40,7 +41,7 @@ class SchemaEndpointsTest {
             contentType(ContentType.Application.Json)
             setBody("""
                 {
-                   "bad":"payload"
+                   "id":"payload"
                 }
             """.trimIndent())
         }
@@ -48,5 +49,41 @@ class SchemaEndpointsTest {
         assertNotNull(body.size > 0)
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
+
+// mocking exposed is hard, the internet agrees, figure this out later
+// or just keep moving with integration tests.
+
+//    @Test
+//    fun `logs and returns server error when transactions fail`() = testApplication {
+//        val mockLogger = mockk<Logger>()
+//        application {
+//            testModuleWithDatabase(mockLogger)
+//        }
+//
+//        val mockTable = mockk<Table>()
+////        val mockTransaction = mockk<Transaction>()
+////        every { mockTransaction.exec<Boolean>(any()) } returns true
+//        every { mockTable.insert {} } throws SQLException("Blew up")
+//        every { mockLogger.info(any()) }
+//
+//        val id = Generators.timeBasedEpochGenerator().generate().toString();
+//        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
+//        val response = client.post("/schema/create.collection") {
+//            headers {
+//                append(HttpHeaders.Authorization, "Bearer $token")
+//                append(StableEventIdHeader, eventId())
+//            }
+//            contentType(ContentType.Application.Json)
+//            setBody("""
+//                {
+//                   "id":"$id",
+//                   "path":"foo"
+//                }
+//            """.trimIndent())
+//        }
+//        println(response.bodyAsText())
+//        assertEquals(HttpStatusCode.InternalServerError, response.status)
+//
+//    }
 
 }

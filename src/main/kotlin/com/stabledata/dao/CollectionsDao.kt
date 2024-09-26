@@ -14,7 +14,6 @@ object CollectionsTable : Table("stable.collections") {
     val description = text("description").nullable()
 
     fun insertRowFromRequest(body: CreateCollectionRequestBody): UUID {
-
             CollectionsTable.insert { row ->
                 row[path] = body.path
                 row[id] = UUID.fromString(body.id)

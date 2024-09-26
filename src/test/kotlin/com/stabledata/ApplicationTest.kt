@@ -8,9 +8,10 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
+import io.mockk.every
+import io.mockk.mockk
+import io.mockk.verify
 import org.jetbrains.exposed.sql.Database
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.Mockito
 import org.slf4j.Logger
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -19,13 +20,16 @@ class ApplicationTest {
 
     @Test
     fun `simple response healthcheck`() = testApplication {
-        val mockLogger = Mockito.mock(Logger::class.java)
+        val mockLogger = mockk<Logger>()
+        every { mockLogger.info(any()) } answers {}
         application {
             testModule(mockLogger)
         }
 
         val response = client.get("/")
-        Mockito.verify(mockLogger).info(anyString())
+        verify {
+            mockLogger.info(any())
+        }
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals("ok", response.bodyAsText())
     }
@@ -33,7 +37,7 @@ class ApplicationTest {
 
     @Test
     fun `requires auth for migrations`() = testApplication {
-        val mockLogger = Mockito.mock(Logger::class.java)
+        val mockLogger = mockk<Logger>()
         application {
             testModuleWithDatabase(mockLogger)
         }
@@ -44,10 +48,8 @@ class ApplicationTest {
 
     @Test
     fun `attempts to run migrate and returns success or failure`() = testApplication {
-        val mockLogger = Mockito.mock(Logger::class.java)
-
         application {
-            testModuleWithDatabase(mockLogger)
+            testModuleWithDatabase(configureLogging())
         }
 
         val token = generateTokenForTesting()
