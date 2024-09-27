@@ -23,7 +23,7 @@ paths:
                     type: string
                     example: "Hello World"
 
-  /schema/create.collection:
+  /schema/collection/create:
     post:
       summary: Create a new collection
       operationId: createCollection
@@ -36,7 +36,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas/create.collection.json'
+              $ref: './schemas/collection/create.json'
       responses:
         '201':
           description: Collection created successfully
@@ -58,7 +58,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: './schemas/update.collection.json'
+              $ref: './schemas/collection/update.json'
       responses:
         '200':
           description: Collection updated successfully
@@ -79,7 +79,7 @@ components:
       schema:
         type: string
     XStableEventCreated:
-      name: x-stable-event-created
+      name: x-stable-event-created-on
       in: header
       description: Client event creation timestamp
       schema:

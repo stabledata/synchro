@@ -26,7 +26,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                     application {
                         module()
                     }
-                    val response = client.post("/schema/create.collection") {
+                    val response = client.post("/schema/collection/create") {
                         headers {
                             append(HttpHeaders.Authorization, "Bearer $token")
                             append(StableEventIdHeader, eventId)
@@ -50,7 +50,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                     application {
                         module()
                     }
-                    val response = client.post("/schema/create.collection") {
+                    val response = client.post("/schema/collection/create") {
                         headers {
                             append(HttpHeaders.Authorization, "Bearer $token")
                             append(StableEventIdHeader, eventId)
@@ -74,7 +74,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                     application {
                         module()
                     }
-                    val response = client.post("/schema/create.collection") {
+                    val response = client.post("/schema/collection/create") {
                         headers {
                             append(HttpHeaders.Authorization, "Bearer $token")
                         }

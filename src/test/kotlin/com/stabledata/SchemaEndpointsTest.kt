@@ -18,7 +18,7 @@ class SchemaEndpointsTest {
             testModule(configureLogging())
         }
 
-        val response = client.post("/schema/create.collection") {
+        val response = client.post("/schema/collection/create") {
             contentType(ContentType.Application.Json)
             setBody("")
         }
@@ -34,7 +34,7 @@ class SchemaEndpointsTest {
 
         val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
 
-        val response = client.post("/schema/create.collection") {
+        val response = client.post("/schema/collection/create") {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $token")
             }
@@ -68,7 +68,7 @@ class SchemaEndpointsTest {
 //
 //        val id = Generators.timeBasedEpochGenerator().generate().toString();
 //        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
-//        val response = client.post("/schema/create.collection") {
+//        val response = client.post("/schema/collection/create") {
 //            headers {
 //                append(HttpHeaders.Authorization, "Bearer $token")
 //                append(StableEventIdHeader, eventId())
