@@ -8,6 +8,10 @@
       "format": "uuid",
       "description": "Unique identifier for the collection to update"
     },
+    "path": {
+      "type": "string",
+      "description": "Path at which to update the collection"
+    },
     "type": {
       "type": "string",
       "description": "Type of the collection"

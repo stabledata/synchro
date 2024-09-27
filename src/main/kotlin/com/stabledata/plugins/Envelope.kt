@@ -19,8 +19,6 @@ const val StableEventCreatedOnHeader = "x-stable-event-created-on"
 // though in this later, it's implicit in endpoint being called.
 // const val StableEventTypeHeader = "x-stable-event"
 
-fun eventId() = Generators.timeBasedEpochGenerator().generate().toString()
-
 /**
  * Checks for stable.log record that match incoming x-stable-event-id
  * and calls the lambda block with existing log entry and an Envelope

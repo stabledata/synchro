@@ -6,7 +6,8 @@ import kotlin.test.Test
 
 class ValidatorTest {
     @Test
-    fun `validates schemas correctly` () {
+    fun `validates collection creation correctly` () {
+        configureLogging()
         val uuid = timeBasedEpochGenerator().generate()
         val validJSON = """
             {
@@ -21,7 +22,28 @@ class ValidatorTest {
     }
 
     @Test
+    fun `validates collection update correctly` () {
+        configureLogging()
+        val uuid = timeBasedEpochGenerator().generate()
+        val validJSON = """
+            {
+              "id": "$uuid",
+              "path": "classes",
+              "icon":"folder",
+               "type":"default",
+               "label":"some nice stuff",
+               "description":"we keep the nice stuff in here"
+            }
+        """.trimIndent()
+
+        val (isValid, errors) = validateJSONUsingSchema("collection/update.json", validJSON)
+        assert(isValid)
+        assert(errors.isEmpty())
+    }
+
+    @Test
     fun `validates invalid schemas correctly` () {
+        configureLogging()
         val invalidJSON = """
             {
               "foo": "bar"

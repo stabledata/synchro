@@ -1,9 +1,6 @@
 package com.stabledata
 
-import com.fasterxml.uuid.Generators
 import com.stabledata.plugins.StableEventIdHeader
-import com.stabledata.plugins.UserCredentials
-import com.stabledata.plugins.eventId
 import io.github.serpro69.kfaker.Faker
 import io.kotest.core.spec.style.WordSpec
 import io.ktor.client.request.*
@@ -13,86 +10,140 @@ import kotlin.test.assertEquals
 
 class SchemaEndpointsIntegrationTest : WordSpec({
 
-    "schema collection endpoints" should {
+    "schema collection create, update, delete workflow" should {
 
-            val faker = Faker()
-            val collectionId = Generators.timeBasedEpochGenerator().generate()
-            val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.co", "test"))
-            val collectionPath = faker.lorem.words()
-            val eventId = eventId()
+        val faker = Faker()
+        val token = generateTokenForTesting()
+        val collectionPath = faker.lorem.words()
+        val collectionId = uuidString()
+        val creationEventId = uuidString()
+        val updateEventId = uuidString()
 
-            "create a new collection" {
-                testApplication {
-                    application {
-                        module()
-                    }
-                    val response = client.post("/schema/collection/create") {
-                        headers {
-                            append(HttpHeaders.Authorization, "Bearer $token")
-                            append(StableEventIdHeader, eventId)
-                        }
-                        contentType(ContentType.Application.Json)
-                        setBody(
-                            """
-                                {
-                                   "id":"$collectionId",
-                                   "path":"$collectionPath"
-                                }
-                            """.trimIndent()
-                        )
-                    }
-                    assertEquals(HttpStatusCode.OK, response.status)
+        "create a new collection" {
+            testApplication {
+                application {
+                    module()
                 }
-            }
-
-            "returns conflict with existing event" {
-                testApplication {
-                    application {
-                        module()
+                val response = client.post("/schema/collection/create") {
+                    headers {
+                        append(HttpHeaders.Authorization, "Bearer $token")
+                        append(StableEventIdHeader, creationEventId)
                     }
-                    val response = client.post("/schema/collection/create") {
-                        headers {
-                            append(HttpHeaders.Authorization, "Bearer $token")
-                            append(StableEventIdHeader, eventId)
-                        }
-                        contentType(ContentType.Application.Json)
-                        setBody(
-                            """
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
                             {
                                "id":"$collectionId",
-                               "path":"new.path.in.old.envelope"
+                               "path":"$collectionPath"
                             }
                         """.trimIndent()
-                        )
-                    }
-                    assertEquals(HttpStatusCode.Conflict, response.status)
+                    )
                 }
+                assertEquals(HttpStatusCode.OK, response.status)
             }
-
-            "returns conflict on existing path" {
-                testApplication {
-                    application {
-                        module()
-                    }
-                    val response = client.post("/schema/collection/create") {
-                        headers {
-                            append(HttpHeaders.Authorization, "Bearer $token")
-                        }
-                        contentType(ContentType.Application.Json)
-                        setBody(
-                            """
-                        {
-                           "id":"$collectionId",
-                           "path":"$collectionPath"
-                        }
-                    """.trimIndent()
-                        )
-                    }
-                    assertEquals(HttpStatusCode.Conflict, response.status)
-                }
-            }
-
-
         }
 
+        "returns conflict with existing event" {
+            testApplication {
+                application {
+                    module()
+                }
+                val response = client.post("/schema/collection/create") {
+                    headers {
+                        append(HttpHeaders.Authorization, "Bearer $token")
+                        append(StableEventIdHeader, creationEventId)
+                    }
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
+                           "id":"$collectionId",
+                           "path":"new.path.in.old.envelope"
+                        }
+                    """.trimIndent()
+                    )
+                }
+                assertEquals(HttpStatusCode.Conflict, response.status)
+            }
+        }
+
+        "returns conflict on existing path" {
+            testApplication {
+                application {
+                    module()
+                }
+                val response = client.post("/schema/collection/create") {
+                    headers {
+                        append(HttpHeaders.Authorization, "Bearer $token")
+                    }
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                    {
+                       "id":"$collectionId",
+                       "path":"$collectionPath"
+                    }
+                """.trimIndent()
+                    )
+                }
+                assertEquals(HttpStatusCode.Conflict, response.status)
+            }
+        }
+
+        "updates the collection" {
+            testApplication {
+                application {
+                    module()
+                }
+                val response = client.post("/schema/collection/update") {
+                    headers {
+                        append(HttpHeaders.Authorization, "Bearer $token")
+                        append(StableEventIdHeader, updateEventId)
+                    }
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
+                           "id":"$collectionId",
+                           "path":"$collectionPath",
+                           "icon":"folder",
+                           "type":"default",
+                           "label":"some nice stuff",
+                           "description":"we keep the nice stuff in here"
+                        }
+                    """.trimIndent()
+                    )
+                }
+                assertEquals(HttpStatusCode.OK, response.status)
+            }
+        }
+
+        "returns not found for missing path" {
+            testApplication {
+                application {
+                    module()
+                }
+                val response = client.post("/schema/collection/update") {
+                    headers {
+                        append(HttpHeaders.Authorization, "Bearer $token")
+                        append(StableEventIdHeader, updateEventId)
+                    }
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
+                           "id":"$collectionId",
+                           "path":"this.path.never.existed",
+                           "icon":"folder",
+                           "type":"default",
+                           "label":"some nice stuff",
+                           "description":"we keep the nice stuff in here"
+                        }
+                    """.trimIndent()
+                    )
+                }
+                assertEquals(HttpStatusCode.NotFound, response.status)
+            }
+        }
+    }
 })
