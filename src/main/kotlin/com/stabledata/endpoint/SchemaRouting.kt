@@ -7,4 +7,6 @@ import org.slf4j.Logger
 fun Application.configureSchemaRouting(logger: Logger = getLogger()) {
     configureCreateCollectionRoute(logger)
     configureUpdateCollectionRoute(logger)
+    configureDeleteCollectionRoute(logger)
+
 }

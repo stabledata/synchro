@@ -1,6 +1,6 @@
 package com.stabledata.endpoint
 
-import com.stabledata.dao.CollectionUpdateFailedException
+import com.stabledata.dao.CollectionDeleteFailedException
 import com.stabledata.dao.CollectionsTable
 import com.stabledata.dao.LogsTable
 import com.stabledata.endpoint.io.CollectionRequest
@@ -17,30 +17,27 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.slf4j.Logger
 
 
-fun Application.configureUpdateCollectionRoute(logger: Logger = getLogger()) {
+fun Application.configureDeleteCollectionRoute(logger: Logger = getLogger()) {
     routing {
         authenticate(JWT_NAME) {
-            post("schema/collection/update") {
+            post("schema/collection/delete") {
                 val (collection, user, envelope, logEntry) = contextualize(
-                    "collection/update"
+                    "collection/delete"
                 ) { postData ->
                     CollectionRequest.fromJSON(postData)
                 } ?: return@post
 
-                logger.debug("Update collection requested by {} event id: {}", user.email, envelope.eventId)
-
-                // consider just putting this in the envelope?
+                logger.debug("Delete collection requested by {} event id: {}", user.email, envelope.eventId)
                 logEntry.path(collection.path)
-
 
                 try {
                     val finalLogEntry = logEntry.build()
                     transaction {
-                        CollectionsTable.updateAtPath(collection.path, collection)
+                        CollectionsTable.deleteAtPath(collection.path)
                         LogsTable.insertLogEntry(finalLogEntry)
                     }
 
-                    logger.debug("Collection updated at path '{} with id: {}", collection.path, collection.id)
+                    logger.debug("Collection deleted at path '{} with id: {}", collection.path, collection.id)
 
                     return@post call.respond(
                         HttpStatusCode.OK,
@@ -49,11 +46,11 @@ fun Application.configureUpdateCollectionRoute(logger: Logger = getLogger()) {
                             confirmedAt = finalLogEntry.confirmedAt
                         )
                     )
-                } catch (e: CollectionUpdateFailedException) {
-                    logger.error("Update collection transaction failed at update query: ${e.localizedMessage}")
+                } catch (e: CollectionDeleteFailedException) {
+                    logger.error("Delete collection transaction failed at update query: ${e.localizedMessage}")
                     return@post call.respond(HttpStatusCode.NotFound, e.localizedMessage)
                 } catch (e: ExposedSQLException) {
-                    logger.error("Update collection transaction failure: ${e.localizedMessage}")
+                    logger.error("Delete collection transaction failure: ${e.localizedMessage}")
                     return@post call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
                 }
             }

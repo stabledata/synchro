@@ -1,12 +1,16 @@
 package com.stabledata.dao
 
 import com.stabledata.endpoint.io.CollectionRequest
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.update
 import java.util.*
 
-class UpdateFailedException(path: String) : Exception("Failed to update collection at path $path")
+class CollectionUpdateFailedException(path: String) : Exception("Failed to update collection at path $path")
+class CollectionDeleteFailedException(path: String) : Exception("Failed to delete collection at path $path")
+
 object CollectionsTable : Table("stable.collections") {
     val id = uuid("id")
     val path = text("path")
@@ -40,7 +44,16 @@ object CollectionsTable : Table("stable.collections") {
         // we might want to think about that number logic
         // but, should never be more than one since we check for records at path before create
         return if (numRecordsUpdated == 1) { update } else {
-            throw UpdateFailedException(path)
+            throw CollectionUpdateFailedException(path)
+        }
+    }
+
+    fun deleteAtPath(path: String) {
+        val numRecordsDeleted = CollectionsTable.deleteWhere {
+            CollectionsTable.path eq path
+        }
+        if (numRecordsDeleted != 1) {
+            throw CollectionDeleteFailedException(path)
         }
     }
 }

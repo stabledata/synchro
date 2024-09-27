@@ -126,7 +126,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                 val response = client.post("/schema/collection/update") {
                     headers {
                         append(HttpHeaders.Authorization, "Bearer $token")
-                        append(StableEventIdHeader, updateEventId)
+                        append(StableEventIdHeader, uuidString())
                     }
                     contentType(ContentType.Application.Json)
                     setBody(
@@ -143,6 +143,30 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                     )
                 }
                 assertEquals(HttpStatusCode.NotFound, response.status)
+            }
+        }
+
+        "deletes the collection" {
+            testApplication {
+                application {
+                    module()
+                }
+                val response = client.post("/schema/collection/delete") {
+                    headers {
+                        append(HttpHeaders.Authorization, "Bearer $token")
+                        append(StableEventIdHeader, uuidString())
+                    }
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                        {
+                           "id":"$collectionId",
+                           "path":"$collectionPath"
+                        }
+                    """.trimIndent()
+                    )
+                }
+                assertEquals(HttpStatusCode.OK, response.status)
             }
         }
     }

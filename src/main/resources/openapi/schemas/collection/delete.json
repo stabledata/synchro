@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Delete Collection",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier for the collection to update"
+    },
+    "path": {
+      "type": "string",
+      "description": "Path at which to update the collection"
+    }
+  },
+  "required": ["id", "path"],
+  "additionalProperties": false
+}

@@ -29,6 +29,6 @@
       "description": "Description of the collection"
     }
   },
-  "required": ["id"],
+  "required": ["id","path"],
   "additionalProperties": false
 }

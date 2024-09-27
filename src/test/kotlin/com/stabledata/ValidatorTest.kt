@@ -42,6 +42,22 @@ class ValidatorTest {
     }
 
     @Test
+    fun `validates collection delete correctly` () {
+        configureLogging()
+        val uuid = timeBasedEpochGenerator().generate()
+        val validJSON = """
+            {
+              "id": "$uuid",
+              "path": "classes"
+            }
+        """.trimIndent()
+
+        val (isValid, errors) = validateJSONUsingSchema("collection/delete.json", validJSON)
+        assert(isValid)
+        assert(errors.isEmpty())
+    }
+
+    @Test
     fun `validates invalid schemas correctly` () {
         configureLogging()
         val invalidJSON = """
