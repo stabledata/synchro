@@ -9,6 +9,16 @@ jobs:
   build-and-test:
     name: "Migrate, Build & Test"
     runs-on: ubuntu-latest
+    env:
+      # ABLY_API_KEY: ${{ secrets.ABLY_API_KEY }}
+      JWT_SECRET: key-for-tests
+      LOG_LEVEL: info
+      PORT: 8080
+      STABLE_DB_PASSWORD: db.password
+      STABLE_DB_USER: postgres
+      STABLE_DB_MAX_CONNECTIONS: 10
+      STABLE_JDBC_URL: jdbc:postgresql://localhost:5432/postgres
+      STABLE_TEAM: test
 
     services:
       postgres:
@@ -36,22 +46,12 @@ jobs:
           distribution: 'corretto'
 
       - name: Install
-        run: ./gradlew dependencies
+        run: ./gradlew --quiet dependencies
 
       - name: Migrate
         run: ./gradlew migrate
 
       - name: Test
-        env:
-          # ABLY_API_KEY: ${{ secrets.ABLY_API_KEY }}
-          JWT_SECRET: key-for-tests
-          LOG_LEVEL: info
-          PORT: 8080
-          STABLE_DB_PASSWORD: db.password
-          STABLE_DB_USER: postgres
-          STABLE_DB_MAX_CONNECTIONS: 10
-          STABLE_JDBC_URL: jdbc:postgresql://localhost:5432/postgres
-          STABLE_TEAM: test
         run: ./gradlew test
 
 
