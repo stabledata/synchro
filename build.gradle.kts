@@ -138,6 +138,9 @@ dependencies {
     implementation("io.github.cdimascio:dotenv-kotlin:6.4.1")
     implementation("com.fasterxml.uuid:java-uuid-generator:5.1.0")
 
+    // ably
+    implementation("io.ably:ably-java:1.2.40")
+
     // log
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
