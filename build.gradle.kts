@@ -7,6 +7,7 @@ plugins {
     kotlin("jvm") version "2.0.20"
     id("io.ktor.plugin") version "2.3.12"
     kotlin("plugin.serialization") version "2.0.20"
+    id("org.openapi.generator") version "7.8.0"
 }
 
 group = "com.stabledata"
@@ -47,12 +48,60 @@ tasks.register<JavaExec>("migrate") {
 }
 
 tasks.test {
-    useJUnitPlatform() // Ensure JUnit 5 is used for Kotest
+    useJUnitPlatform()
     testLogging {
         events("passed", "skipped", "failed")
     }
 }
 
+openApiValidate {
+    inputSpec.set("$rootDir/src/main/resources/openapi/doc.yaml")
+}
+
+openApiGenerate {
+    inputSpec.set("$rootDir/src/main/resources/openapi/doc.yaml")
+    outputDir.set("$rootDir/client")
+    generatorName.set("typescript-fetch")
+    templateDir.set("$rootDir/src/main/resources/openapi/templates")
+    additionalProperties.putAll(
+        mapOf(
+            "npmPackageName" to "@stabledata/client",
+            "npmPackageVersion" to version
+        )
+    )
+}
+
+tasks.register("generatePackageJson") {
+
+    val version = project.findProperty("version")?.toString()
+        ?: throw Exception("Specify a version to build client via -Pversion=123")
+
+
+    doLast {
+        val packageJsonFile = file("$rootDir/client/package.json")
+        packageJsonFile.writeText("""
+        {
+            "name": "@stabledata/synchro-client",
+            "version": "$version",
+            "description": "This client is generated with the open api typescript-fetch template during synchro builds",
+            "main": "index.ts",
+            "scripts": {
+                "build": "tsc"
+            },
+            "dependencies": {
+                "whatwg-fetch": "^3.0.0"
+            },
+            "devDependencies": {
+                "typescript": "^4.0.0"
+            }
+        }
+        """.trimIndent())
+    }
+}
+
+tasks.named("openApiGenerate").configure {
+    finalizedBy("generatePackageJson")
+}
 
 dependencies {
     // ktor core
@@ -92,11 +141,10 @@ dependencies {
     // log
     implementation("ch.qos.logback:logback-classic:$logback_version")
 
+    // tests
     testImplementation("io.ktor:ktor-server-test-host-jvm")
-
     testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
     testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
-
     testImplementation("io.kotest:kotest-runner-junit5:5.9.0")
     testImplementation("io.kotest:kotest-framework-engine:5.9.0")
     testImplementation("io.github.serpro69:kotlin-faker:1.16.0")

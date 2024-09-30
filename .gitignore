@@ -40,3 +40,6 @@ out/
 /docs/index.html
 
 /.env
+
+# generated client
+client/

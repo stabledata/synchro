@@ -16,7 +16,13 @@ import org.jetbrains.exposed.sql.Database
 
 fun main() {
     val port = envInt("PORT")
-    embeddedServer(Netty, port, host = "0.0.0.0", module = Application::module).start(wait = true)
+
+    embeddedServer(
+        Netty,
+        port,
+        host = "0.0.0.0",
+        module = Application::module
+    ).start(wait = true)
 }
 
 fun Application.module() {

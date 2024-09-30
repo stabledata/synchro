@@ -21,7 +21,7 @@ object Migrations {
                 println("Running migration task: $task")
                 when (task) {
                     "migrate" -> migrate()
-                     "undo" -> undo() // flyway wants monies now for this
+                      "undo" -> undo() // flyway wants monies now for this
                     "repair" -> repair()
                     "create" -> create()
                     "help" -> printHelp()
