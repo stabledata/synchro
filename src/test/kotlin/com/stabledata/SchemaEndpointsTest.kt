@@ -15,7 +15,7 @@ class SchemaEndpointsTest {
     @Test
     fun `responds unauthorized without token` () = testApplication {
         application {
-            testModule(configureLogging())
+            testModule()
         }
 
         val response = client.post("/schema/collection/create") {
@@ -29,7 +29,7 @@ class SchemaEndpointsTest {
     fun `returns errors with an invalid payload` () = testApplication {
         application {
              // this sets default logger, or inject mock
-            testModule(configureLogging())
+            testModule()
         }
 
         val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))

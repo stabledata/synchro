@@ -34,6 +34,13 @@ object DatabaseOperations {
         """.trimIndent()
     }
 
+    fun dropTableAtPath(path: String): String {
+        val convertedPath = convertPath(path)
+        return """
+            DROP TABLE $convertedPath
+        """.trimIndent()
+    }
+
     fun tableExistsAtPath(path: String): Boolean {
         val convertedPath = convertPath(path)
         val existsQuery = """

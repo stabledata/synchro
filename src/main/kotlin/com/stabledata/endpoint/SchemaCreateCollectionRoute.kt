@@ -1,12 +1,13 @@
 package com.stabledata.endpoint
 
+import com.stabledata.Ably
 import com.stabledata.DatabaseOperations
 import com.stabledata.dao.CollectionsTable
 import com.stabledata.dao.LogsTable
 import com.stabledata.endpoint.io.CollectionRequest
 import com.stabledata.endpoint.io.CollectionsResponse
-import com.stabledata.getLogger
 import com.stabledata.plugins.JWT_NAME
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -14,20 +15,21 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.slf4j.Logger
 
+fun Application.configureCreateCollectionRoute() {
 
-fun Application.configureCreateCollectionRoute(logger: Logger = getLogger()) {
+    val logger = KotlinLogging.logger {}
+
     routing {
         authenticate(JWT_NAME) {
             post("schema/collection/create") {
-                val (collection, userCredentials, envelope, logEntry) = contextualize(
+                val (collection, user, envelope, logEntry) = contextualize(
                     "collection/create"
                 ) { postData ->
                     CollectionRequest.fromJSON(postData)
                 } ?: return@post
 
-                logger.debug("Create collection requested by {} event id: {}", userCredentials.email, envelope.eventId)
+                logger.debug { "Create collection requested by ${user.email} with event id ${envelope.eventId}" }
 
                 // consider just putting this in the envelope?
                 logEntry.path(collection.path)
@@ -43,13 +45,16 @@ fun Application.configureCreateCollectionRoute(logger: Logger = getLogger()) {
 
                 try {
                     val finalLogEntry = logEntry.build()
+
                     transaction {
                         exec(DatabaseOperations.createTableAtPathSQL(collection.path))
                         CollectionsTable.insertRowFromRequest(collection)
                         LogsTable.insertLogEntry(finalLogEntry)
+                        Ably.publish(user.team, "collection/create", finalLogEntry)
                     }
 
-                    logger.debug("Collection created at path '{}', with id: {}", collection.path, collection.id)
+                    logger.debug {"Collection created at path '${collection.path} with id ${collection.id}" }
+
 
                     return@post call.respond(
                         HttpStatusCode.OK,
@@ -60,7 +65,7 @@ fun Application.configureCreateCollectionRoute(logger: Logger = getLogger()) {
                     )
 
                 } catch (e: ExposedSQLException) {
-                    logger.error("Create collection transaction failed: ${e.localizedMessage}")
+                    logger.error { "Create collection transaction failed: ${e.localizedMessage}" }
                     return@post call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
                 }
             }

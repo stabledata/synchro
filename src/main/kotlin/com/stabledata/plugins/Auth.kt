@@ -1,8 +1,8 @@
 package com.stabledata.plugins
 
 import com.stabledata.envString
-import com.stabledata.getLogger
 import com.stabledata.getVerifier
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -65,8 +65,8 @@ suspend fun PipelineContext<Unit, ApplicationCall>.permissions(
     block: suspend (Boolean) -> Unit
 ): UserCredentials? {
     val userCredentials = call.principal<UserCredentials>()
-    val logger = getLogger()
-    logger.debug("Checking permissions to $operation")
+    val logger = KotlinLogging.logger {}
+    logger.debug { "Checking permissions to $operation" }
     userCredentials?.let {
         // TODO: check permissions based on event type e.g "collection.create"
         val hasPermission = true

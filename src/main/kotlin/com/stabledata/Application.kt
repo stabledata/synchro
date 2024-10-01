@@ -26,7 +26,6 @@ fun main() {
 }
 
 fun Application.module() {
-    val logger = configureLogging()
 
     // cors, auth etc. (below)
     configurePlugins()
@@ -36,8 +35,8 @@ fun Application.module() {
 
 
     // configure routes.
-    configureSchemaRouting(logger)
-    configureChoresRouting(logger)
+    configureSchemaRouting()
+    configureChoresRouting()
     configureDocsRouting()
 }
 

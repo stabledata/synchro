@@ -8,11 +8,7 @@ import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.testing.*
-import io.mockk.every
-import io.mockk.mockk
-import io.mockk.verify
 import org.jetbrains.exposed.sql.Database
-import org.slf4j.Logger
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -20,16 +16,11 @@ class ApplicationTest {
 
     @Test
     fun `simple response healthcheck`() = testApplication {
-        val mockLogger = mockk<Logger>()
-        every { mockLogger.info(any()) } answers {}
         application {
-            testModule(mockLogger)
+            testModule()
         }
 
         val response = client.get("/")
-        verify {
-            mockLogger.info(any())
-        }
         assertEquals(HttpStatusCode.OK, response.status)
         assertEquals("ok", response.bodyAsText())
     }
@@ -37,9 +28,8 @@ class ApplicationTest {
 
     @Test
     fun `requires auth for migrations`() = testApplication {
-        val mockLogger = mockk<Logger>()
         application {
-            testModuleWithDatabase(mockLogger)
+            testModuleWithDatabase()
         }
 
         val response = client.get("/migrate") {}
@@ -49,7 +39,7 @@ class ApplicationTest {
     @Test
     fun `attempts to run migrate and returns success or failure`() = testApplication {
         application {
-            testModuleWithDatabase(configureLogging())
+            testModuleWithDatabase()
         }
 
         val token = generateTokenForTesting()
@@ -62,17 +52,17 @@ class ApplicationTest {
     }
 }
 
-fun Application.testModule(logger: Logger) {
+fun Application.testModule() {
     configurePlugins()
-    configureSchemaRouting(logger)
-    configureChoresRouting(logger)
+    configureSchemaRouting()
+    configureChoresRouting()
     configureDocsRouting()
 }
 
-fun Application.testModuleWithDatabase(logger: Logger) {
+fun Application.testModuleWithDatabase() {
     configurePlugins()
-    configureChoresRouting(logger)
-    configureSchemaRouting(logger)
+    configureChoresRouting()
+    configureSchemaRouting()
     configureDocsRouting()
     Database.connect(hikari())
 }

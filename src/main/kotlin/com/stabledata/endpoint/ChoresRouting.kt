@@ -2,6 +2,7 @@ package com.stabledata.endpoint
 
 import com.stabledata.hikari
 import com.stabledata.plugins.JWT_NAME
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -10,13 +11,14 @@ import io.ktor.server.routing.*
 import org.flywaydb.core.Flyway
 import org.flywaydb.core.api.FlywayException
 
-import org.slf4j.Logger
+fun Application.configureChoresRouting() {
 
-fun Application.configureChoresRouting(logger: Logger) {
+    val logger = KotlinLogging.logger {}
+
     routing {
 
         get("/") {
-            logger.info("Healthcheck / endpoint called.")
+            logger.debug { "Healthcheck / endpoint called." }
             call.respondText("ok")
         }
         authenticate(JWT_NAME) {
@@ -25,7 +27,7 @@ fun Application.configureChoresRouting(logger: Logger) {
             }
 
             get("migrate") {
-                logger.info("Attempting db migration")
+                logger.debug { "Attempting db migration" }
                 try {
 
                     Flyway.configure()

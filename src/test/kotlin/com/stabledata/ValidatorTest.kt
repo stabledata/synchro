@@ -7,7 +7,7 @@ import kotlin.test.Test
 class ValidatorTest {
     @Test
     fun `validates collection creation correctly` () {
-        configureLogging()
+        
         val uuid = timeBasedEpochGenerator().generate()
         val validJSON = """
             {
@@ -23,7 +23,7 @@ class ValidatorTest {
 
     @Test
     fun `validates collection update correctly` () {
-        configureLogging()
+        
         val uuid = timeBasedEpochGenerator().generate()
         val validJSON = """
             {
@@ -43,7 +43,7 @@ class ValidatorTest {
 
     @Test
     fun `validates collection delete correctly` () {
-        configureLogging()
+        
         val uuid = timeBasedEpochGenerator().generate()
         val validJSON = """
             {
@@ -59,7 +59,7 @@ class ValidatorTest {
 
     @Test
     fun `validates invalid schemas correctly` () {
-        configureLogging()
+        
         val invalidJSON = """
             {
               "foo": "bar"
@@ -73,7 +73,7 @@ class ValidatorTest {
 
     @Test
     fun `handles parsing errors` () {
-        configureLogging()
+        
         val notActuallyJSON = """
             Server error
         """.trimIndent()
@@ -85,7 +85,7 @@ class ValidatorTest {
 
     @Test
     fun `handles schema not found errors` () {
-        configureLogging()
+        
         val notActuallyJSON = """
             Server error
         """.trimIndent()

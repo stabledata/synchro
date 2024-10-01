@@ -1,8 +1,8 @@
 package com.stabledata.plugins
 
-import com.stabledata.getLogger
 import io.github.optimumcode.json.schema.JsonSchema
 import io.github.optimumcode.json.schema.ValidationError
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.util.pipeline.*
@@ -13,6 +13,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 
 fun validateJSONUsingSchema(schemaFileName: String, payload: String): Pair<Boolean, List<String>> {
+    val logger = KotlinLogging.logger {}
     try {
         val schemaLocation = "src/main/resources/openapi/schemas/$schemaFileName"
         val schemaJson = Files.readString(Paths.get(schemaLocation))
@@ -28,10 +29,10 @@ fun validateJSONUsingSchema(schemaFileName: String, payload: String): Pair<Boole
             }
         )
     } catch (e: IOException) {
-        getLogger().error("Unable to locate schema at: resources/openapi/schemas/{}", schemaFileName)
+        logger.error {"Unable to locate schema at: resources/openapi/schemas/$schemaFileName" }
         return Pair(false, emptyList())
     }  catch (e: SerializationException) {
-        getLogger().error("Validation failed to parse JSON {}", payload)
+        logger.error {"Validation failed to parse JSON $payload" }
         return Pair(false, emptyList())
     }
 }
