@@ -17,13 +17,15 @@ const val JWT_REALM = "stable-jwt-realm"
 @Serializable
 data class UserCredentials (
     val email: String,
+    val id: String,
     val team: String
 ) : Principal {
     companion object {
         fun fromJWTCredential (credential: JWTCredential): UserCredentials {
             return UserCredentials(
                 email = credential.payload.getClaim("email").asString(),
-                team = credential.payload.getClaim("team").asString()
+                team = credential.payload.getClaim("team").asString(),
+                id = credential.payload.getClaim("id").asString()
             )
         }
 

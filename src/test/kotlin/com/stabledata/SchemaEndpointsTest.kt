@@ -32,7 +32,7 @@ class SchemaEndpointsTest {
             testModule()
         }
 
-        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
+        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test", "fake.id"))
 
         val response = client.post("/schema/collection/create") {
             headers {

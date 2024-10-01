@@ -29,7 +29,7 @@ fun Application.configureCreateCollectionRoute() {
                     CollectionRequest.fromJSON(postData)
                 } ?: return@post
 
-                logger.debug { "Create collection requested by ${user.email} with event id ${envelope.eventId}" }
+                logger.debug { "Create collection requested by ${user.id} with event id ${envelope.eventId}" }
 
                 // consider just putting this in the envelope?
                 logEntry.path(collection.path)

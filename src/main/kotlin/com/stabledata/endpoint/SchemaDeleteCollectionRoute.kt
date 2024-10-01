@@ -31,7 +31,7 @@ fun Application.configureDeleteCollectionRoute() {
                     CollectionRequest.fromJSON(postData)
                 } ?: return@post
 
-                logger.debug { "Delete collection requested by ${user.email} with event id ${envelope.eventId}" }
+                logger.debug { "Delete collection requested by ${user.id} with event id ${envelope.eventId}" }
                 logEntry.path(collection.path)
 
                 try {

@@ -10,7 +10,7 @@ jobs:
     name: "Migrate, Build & Test"
     runs-on: ubuntu-latest
     env:
-      # ABLY_API_KEY: ${{ secrets.ABLY_API_KEY }}
+      ABLY_API_KEY: ${{ secrets.ABLY_PUBLISH_ONLY_TEST_KEY }}
       JWT_SECRET: key-for-tests
       LOG_LEVEL: info
       PORT: 8080
