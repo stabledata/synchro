@@ -17,8 +17,8 @@ const val JWT_REALM = "stable-jwt-realm"
 @Serializable
 data class UserCredentials (
     val email: String,
+    val team: String,
     val id: String,
-    val team: String
 ) : Principal {
     companion object {
         fun fromJWTCredential (credential: JWTCredential): UserCredentials {
