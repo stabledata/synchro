@@ -19,6 +19,7 @@ class ValidatorTest {
         val (isValid, errors) = validateJSONUsingSchema("collection/create.json", validJSON)
         assert(isValid)
         assert(errors.isEmpty())
+
     }
 
     @Test
@@ -39,6 +40,22 @@ class ValidatorTest {
         val (isValid, errors) = validateJSONUsingSchema("collection/update.json", validJSON)
         assert(isValid)
         assert(errors.isEmpty())
+    }
+
+    @Test
+    fun `invalidates reserved SQL words` () {
+
+        val uuid = timeBasedEpochGenerator().generate()
+        val validJSON = """
+            {
+              "id": "$uuid",
+              "path": "any"
+            }
+        """.trimIndent()
+
+        val (isValid, errors) = validateJSONUsingSchema("collection/update.json", validJSON)
+        assert(!isValid)
+        assert(errors.isNotEmpty())
     }
 
     @Test

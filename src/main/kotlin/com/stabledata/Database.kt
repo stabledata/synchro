@@ -26,29 +26,40 @@ fun convertPath (path: String): String {
     return path.replace(".", "_")
 }
 
+fun sanitizeTableName(input: String): String {
+    val regex = Regex("^[a-zA-Z0-9_]+\$")
+
+    // Check if the input matches the allowed pattern
+    if (!regex.matches(input)) {
+        throw IllegalArgumentException("Invalid table name: $input")
+    }
+
+    return input
+}
+
 object DatabaseOperations {
     fun createTableAtPathSQL(path: String): String {
-        val convertedPath = convertPath(path)
+        val tableName = sanitizeTableName(convertPath(path))
         return """
-            CREATE TABLE $convertedPath (id UUID PRIMARY KEY)
+            CREATE TABLE $tableName (id UUID PRIMARY KEY)
         """.trimIndent()
     }
 
     fun dropTableAtPath(path: String): String {
-        val convertedPath = convertPath(path)
+        val tableName = sanitizeTableName(convertPath(path))
         return """
-            DROP TABLE $convertedPath
+            DROP TABLE $tableName
         """.trimIndent()
     }
 
     fun tableExistsAtPath(path: String): Boolean {
-        val convertedPath = convertPath(path)
+        val tableName = sanitizeTableName(convertPath(path))
         val existsQuery = """
             SELECT EXISTS (
                 SELECT 1 
                 FROM information_schema.tables 
                 WHERE table_schema = 'public' 
-                AND table_name = '$convertedPath'
+                AND table_name = '$tableName'
             );
             """.trimIndent()
         val existsResult = transaction {

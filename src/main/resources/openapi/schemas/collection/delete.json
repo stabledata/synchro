@@ -6,7 +6,7 @@
     "id": {
       "type": "string",
       "format": "uuid",
-      "description": "Unique identifier for the collection to update"
+      "description": "Unique identifier for the collection to delete"
     },
     "path": {
       "type": "string",

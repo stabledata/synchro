@@ -20,8 +20,7 @@ fun validateJSONUsingSchema(schemaFileName: String, payload: String): Pair<Boole
         val schema = JsonSchema.fromDefinition(schemaJson)
         val json = parseToJsonElement(payload)
         val errors = mutableListOf<ValidationError>()
-        val isValid =
-            schema.validate(json, errors::add)
+        val isValid = schema.validate(json, errors::add)
         return Pair(
             isValid,
             errors.map {
