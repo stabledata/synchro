@@ -32,6 +32,18 @@ jobs:
           curl -H "Authorization: Bearer ${{ steps.auth.outputs.id_token }}" \
             "https://token.actions.githubusercontent.com/.well-known/openid-configuration" | jq .
 
+      - name: Retrieve OIDC Token
+        id: retrieve-oidc-token
+        run: |
+          echo "Retrieving OIDC Token..."
+          export OIDC_TOKEN=$(curl -s -H "Authorization: Bearer ${{ steps.auth.outputs.id_token }}" \
+            "https://token.actions.githubusercontent.com/.well-known/openid-configuration/jwks")
+          echo "OIDC Token: $OIDC_TOKEN"
+
+      - name: Decode OIDC Token
+        run: |
+          echo "${{ steps.retrieve-oidc-token.outputs.OIDC_TOKEN }}" | base64 --decode | jq .
+
       - name: "Build Docker Image"
         run: |
           docker build . \
