@@ -28,7 +28,6 @@ jobs:
 
       - name: "Push to AR"
         run: |
-          cd services/synchro
           docker build . \
             -f Dockerfile \
             -t us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:${GITHUB_SHA::6} \
