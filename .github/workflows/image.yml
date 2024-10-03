@@ -26,6 +26,11 @@ jobs:
       - name: "Auth to AR"
         run: gcloud auth configure-docker us-east4-docker.pkg.dev
 
+      - name: Inspect OIDC Token
+        run: |
+          curl -H "Authorization: Bearer ${{ steps.auth.outputs.id_token }}" \
+            ${{ steps.auth.outputs.url }} | jq .
+
       - name: "Push to AR"
         run: |
           docker build . \
