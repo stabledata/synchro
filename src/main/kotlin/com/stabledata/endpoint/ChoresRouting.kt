@@ -1,5 +1,7 @@
 package com.stabledata.endpoint
 
+import com.stabledata.envFlag
+import com.stabledata.generateTokenForTesting
 import com.stabledata.hikari
 import com.stabledata.plugins.JWT_NAME
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -21,9 +23,27 @@ fun Application.configureChoresRouting() {
             logger.debug { "Healthcheck / endpoint called." }
             call.respondText("ok")
         }
+
+        get("/token") {
+            // only respond to this in test mode.
+            val isTokenEndpointEnabled = envFlag("ENABLE_TOKEN_ENDPOINT")
+
+            if (!isTokenEndpointEnabled) {
+                call.respond(HttpStatusCode.Forbidden)
+                return@get
+            }
+
+            logger.info { "Token endpoint called, responding with token" }
+
+            // JWT token issuing logic goes here
+            val jwtToken = generateTokenForTesting()
+            call.respond(HttpStatusCode.OK, mapOf("token" to jwtToken))
+        }
+
         authenticate(JWT_NAME) {
+
             get("/secure") {
-                call.respondText("secured")
+                call.respond(HttpStatusCode.OK,"ok")
             }
 
             get("migrate") {

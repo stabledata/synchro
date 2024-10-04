@@ -142,6 +142,7 @@ dependencies {
     implementation("io.ably:ably-java:1.2.40")
 
     // log
+    implementation("ch.qos.logback:logback-classic:1.5.7")
     implementation("io.github.oshai:kotlin-logging-jvm:5.1.4")
 
     // tests
