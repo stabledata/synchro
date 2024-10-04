@@ -26,39 +26,43 @@ fun convertPath (path: String): String {
     return path.replace(".", "_")
 }
 
-fun sanitizeTableName(input: String): String {
+fun sanitizeString(input: String): String {
     val regex = Regex("^[a-zA-Z0-9_]+\$")
 
     // Check if the input matches the allowed pattern
     if (!regex.matches(input)) {
-        throw IllegalArgumentException("Invalid table name: $input")
+        throw IllegalArgumentException("Dirty SQL string: $input")
     }
 
     return input
 }
 
 object DatabaseOperations {
-    fun createTableAtPathSQL(path: String): String {
-        val tableName = sanitizeTableName(convertPath(path))
+    fun createTableAtPathSQL(team: String, path: String): String {
+        val tableName = sanitizeString(convertPath(path))
+        val cleanTeamName = sanitizeString(team)
         return """
-            CREATE TABLE $tableName (id UUID PRIMARY KEY)
+            CREATE SCHEMA IF NOT EXISTS $team;
+            CREATE TABLE $cleanTeamName.$tableName (id UUID PRIMARY KEY)
         """.trimIndent()
     }
 
-    fun dropTableAtPath(path: String): String {
-        val tableName = sanitizeTableName(convertPath(path))
+    fun dropTableAtPath(team: String, path: String): String {
+        val tableName = sanitizeString(convertPath(path))
+        val cleanTeamName = sanitizeString(team)
         return """
-            DROP TABLE $tableName
+            DROP TABLE $cleanTeamName.$tableName
         """.trimIndent()
     }
 
-    fun tableExistsAtPath(path: String): Boolean {
-        val tableName = sanitizeTableName(convertPath(path))
+    fun tableExistsAtPath(team: String, path: String): Boolean {
+        val tableName = sanitizeString(convertPath(path))
+        val cleanTeamName = sanitizeString(team)
         val existsQuery = """
             SELECT EXISTS (
                 SELECT 1 
                 FROM information_schema.tables 
-                WHERE table_schema = 'public' 
+                WHERE table_schema = '$cleanTeamName' 
                 AND table_name = '$tableName'
             );
             """.trimIndent()

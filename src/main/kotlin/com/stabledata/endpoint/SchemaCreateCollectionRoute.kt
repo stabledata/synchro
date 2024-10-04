@@ -36,7 +36,7 @@ fun Application.configureCreateCollectionRoute() {
 
                 // check if the table exists already at the path
                 // but... we should also check for collections that might have that path
-                if (DatabaseOperations.tableExistsAtPath(collection.path)) {
+                if (DatabaseOperations.tableExistsAtPath(user.team, collection.path)) {
                     return@post call.respond(
                         HttpStatusCode.Conflict,
                         "path ${collection.path} already exists"
@@ -47,8 +47,8 @@ fun Application.configureCreateCollectionRoute() {
                     val finalLogEntry = logEntry.build()
 
                     transaction {
-                        exec(DatabaseOperations.createTableAtPathSQL(collection.path))
-                        CollectionsTable.insertRowFromRequest(collection)
+                        exec(DatabaseOperations.createTableAtPathSQL(user.team, collection.path))
+                        CollectionsTable.insertRowFromRequest(user.team, collection)
                         LogsTable.insertLogEntry(finalLogEntry)
                         Ably.publish(user.team, "collection/create", finalLogEntry)
                     }

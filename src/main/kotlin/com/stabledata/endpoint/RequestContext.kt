@@ -54,6 +54,7 @@ suspend fun <T>PipelineContext<Unit, ApplicationCall>.contextualize(
     val logEntry = LogEntryBuilder().eventType(operation)
 
     logEntry.actorId(userCredentials.id)
+    logEntry.teamId(userCredentials.team)
     logEntry.id(envelope.eventId)
     logEntry.createdAt(envelope.createdAt)
 

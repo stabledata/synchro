@@ -38,7 +38,7 @@ fun Application.configureDeleteCollectionRoute() {
                     val finalLogEntry = logEntry.build()
                     transaction {
                         CollectionsTable.deleteAtPath(collection.path)
-                        exec(DatabaseOperations.dropTableAtPath(collection.path))
+                        exec(DatabaseOperations.dropTableAtPath(user.team, collection.path))
                         LogsTable.insertLogEntry(finalLogEntry)
                         Ably.publish(user.team, "collection/delete", finalLogEntry)
                     }

@@ -13,16 +13,18 @@ class CollectionDeleteFailedException(path: String) : Exception("Failed to delet
 
 object CollectionsTable : Table("stable.collections") {
     val id = uuid("id")
+    val team_id = text("team_id")
     val path = text("path")
     val type = text("type").nullable()
     val label = text("label").nullable()
     val icon = text("icon").nullable()
     val description = text("description").nullable()
 
-    fun insertRowFromRequest(insert: CollectionRequest): UUID {
+    fun insertRowFromRequest(team: String, insert: CollectionRequest): UUID {
             CollectionsTable.insert { row ->
                 row[path] = insert.path
                 row[id] = UUID.fromString(insert.id)
+                row[team_id] = team
                 row[type] = insert.type
                 row[label] = insert.label
                 row[icon] = insert.icon

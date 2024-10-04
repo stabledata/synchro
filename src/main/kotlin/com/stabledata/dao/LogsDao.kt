@@ -11,6 +11,7 @@ import java.util.*
  */
 data class LogEntry (
     val id: String,
+    val teamId: String,
     val path: String,
     val actorId: String,
     val eventType: String,
@@ -23,6 +24,7 @@ data class LogEntry (
  */
 class LogEntryBuilder {
     var id: String? = null
+    var teamId: String? = null
     var path: String? = null
     var actorId: String? = null
     var eventType: String? = null
@@ -30,6 +32,7 @@ class LogEntryBuilder {
 
 
     fun id(id: String) = apply { this.id = id }
+    fun teamId(teamId: String) = apply { this.teamId = teamId }
     fun path(path: String) = apply { this.path = path }
     fun actorId(actorId: String) = apply { this.actorId = actorId }
     fun eventType(eventType: String) = apply { this.eventType = eventType }
@@ -43,6 +46,7 @@ class LogEntryBuilder {
     fun build(): LogEntry {
         return LogEntry(
             id = requireNotNull(id) { "id $providedExplainer" },
+            teamId = requireNotNull(teamId) { "team_id $providedExplainer" },
             path = requireNotNull(path) { "path $providedExplainer" },
             actorId = requireNotNull(actorId) { "actorId $providedExplainer" },
             eventType = requireNotNull(eventType) { "eventType  $providedExplainer" },
@@ -54,6 +58,7 @@ class LogEntryBuilder {
 
 object LogsTable : Table("stable.logs") {
     val eventId = uuid("id")
+    val teamId = text("team_id")
     val actorId = text("actor_id")
     val path = text("path")
     val eventType = text("event_type")
@@ -74,6 +79,7 @@ object LogsTable : Table("stable.logs") {
         return row?.let {
             LogEntry(
                 id = it[eventId].toString(),
+                teamId = it[teamId],
                 actorId = it[actorId],
                 path = it[path],
                 eventType = it[eventType],
@@ -86,6 +92,7 @@ object LogsTable : Table("stable.logs") {
     fun insertLogEntry (entry: LogEntry): InsertStatement<Number> {
         return LogsTable.insert { log ->
             log[eventId] = UUID.fromString(entry.id)
+            log[teamId] = entry.teamId
             log[createdAt] = entry.createdAt
             log[eventType] = entry.eventType
             log[actorId] = entry.actorId

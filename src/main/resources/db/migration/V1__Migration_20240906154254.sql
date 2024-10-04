@@ -5,6 +5,7 @@ CREATE SCHEMA IF NOT EXISTS stable;
 /* Default stores */
 CREATE TABLE stable.logs (
     id uuid PRIMARY KEY,
+    team_id text NOT NULL,
     event_type text NOT NULL,
     actor_id text NOT NULL,
     path text,
@@ -19,6 +20,7 @@ CREATE INDEX index_logs_document_id ON stable.logs (document_id);
 
 CREATE TABLE stable.collections (
     id uuid PRIMARY KEY,
+    team_id text NOT NULL,
     path text NOT NULL,
     type text,
     label text,
@@ -28,9 +30,10 @@ CREATE TABLE stable.collections (
 
 CREATE TABLE stable.fields (
    id uuid PRIMARY KEY,
+   team_id text NOT NULL,
    collection_id uuid NOT NULL,
    path text NOT NULL,
-   kind text NOT NULL,
+   type text NOT NULL,
 
    label text,
    placeholder text,
@@ -38,9 +41,7 @@ CREATE TABLE stable.fields (
 
    realtime boolean,
    help json,
-
    disabled boolean,
    hidden boolean
 );
 
-CREATE INDEX index_fields_collection_slug ON stable.fields(collection_id);
