@@ -44,7 +44,6 @@ fun Application.configureUpdateCollectionRoute() {
 
                     logger.debug {"Collection updated at path '${collection.path} with id ${collection.id}" }
 
-
                     return@post call.respond(
                         HttpStatusCode.OK,
                         CollectionsResponse(

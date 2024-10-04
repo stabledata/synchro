@@ -21,16 +21,11 @@ jobs:
         id: auth
         uses: google-github-actions/auth@v1
         with:
-          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
-          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+          workload_identity_provider: projects/123456789012/locations/global/workloadIdentityPools/github-actions-pool/providers/github-actions-provider
+          service_account: github-actions@surface-420608.iam.gserviceaccount.com
 
       - name: "Auth to AR"
         run: gcloud auth configure-docker us-east4-docker.pkg.dev
-
-      - name: Inspect GOOGLE_GHA_CREDS_PATH JSON
-        run: |
-          echo "Inspecting JSON file at $GOOGLE_GHA_CREDS_PATH"
-          cat $GOOGLE_GHA_CREDS_PATH | jq .
 
       - name: "Build Docker Image"
         run: |
