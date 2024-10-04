@@ -15,7 +15,7 @@ resource "google_iam_workload_identity_pool_provider" "github_actions_provider" 
   display_name              = "GitHub Actions Identity Provider"
   description               = "Identity Provider for GitHub Actions"
 
-  attribute_condition = "assertion.repository_owner == 'stabledata'"
+  attribute_condition = "assertion.repository_id == \"R_kgDOMnXo9g\""
   attribute_mapping = {
     "google.subject"       = "assertion.sub"
     "attribute.repository_id" = "assertion.repository_id"

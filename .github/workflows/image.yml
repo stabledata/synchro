@@ -27,15 +27,6 @@ jobs:
       - name: "Auth to AR"
         run: gcloud auth configure-docker us-east4-docker.pkg.dev
 
-      - name: Inspect GOOGLE_GHA_CREDS_PATH JSON
-        run: |
-          if [ -f "$GOOGLE_GHA_CREDS_PATH" ]; then
-            echo "Found the credentials file at $GOOGLE_GHA_CREDS_PATH"
-            cat $GOOGLE_GHA_CREDS_PATH | jq .
-          else
-            echo "No credentials file found at $GOOGLE_GHA_CREDS_PATH"
-          fi
-
       - name: "Build Docker Image"
         run: |
           docker build . \
