@@ -44,3 +44,9 @@ resource "google_project_iam_member" "allow_push_to_artifact_registry" {
   role    = "roles/artifactregistry.writer"
   member  = "serviceAccount:${google_service_account.github_cicd_service_account.email}"
 }
+
+resource "google_project_iam_member" "allow_token_creation" {
+  project = var.project
+  role    = "roles/iam.serviceAccountTokenCreator"
+  member  = "serviceAccount:${google_service_account.github_cicd_service_account.email}"
+}
