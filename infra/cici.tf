@@ -39,6 +39,12 @@ resource "google_service_account_iam_member" "allow_github_to_impersonate" {
   member             = "principalSet://iam.googleapis.com/projects/${var.project}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_actions_pool.workload_identity_pool_id}/attribute.repository/stabledata/*"
 }
 
+resource "google_service_account_iam_member" "allow_github_to_create_sa_tokens" {
+  service_account_id = google_service_account.github_cicd_service_account.name
+  role               = "roles/iam.serviceAccountTokenCreator"
+  member             = "principalSet://iam.googleapis.com/projects/${var.project}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.github_actions_pool.workload_identity_pool_id}/attribute.repository/stabledata/*"
+}
+
 resource "google_project_iam_member" "allow_push_to_artifact_registry" {
   project = var.project
   role    = "roles/artifactregistry.writer"
