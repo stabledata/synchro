@@ -1,5 +1,6 @@
 package com.stabledata.dao
 
+import kotlinx.serialization.Serializable
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
@@ -9,6 +10,7 @@ import java.util.*
 /**
  * LogEntry records every single event that is synchronized across team workspaces in Stable
  */
+@Serializable
 data class LogEntry (
     val id: String,
     val teamId: String,

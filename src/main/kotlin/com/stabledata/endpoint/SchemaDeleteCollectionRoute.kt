@@ -6,7 +6,6 @@ import com.stabledata.dao.CollectionDeleteFailedException
 import com.stabledata.dao.CollectionsTable
 import com.stabledata.dao.LogsTable
 import com.stabledata.endpoint.io.CollectionRequest
-import com.stabledata.endpoint.io.CollectionsResponse
 import com.stabledata.plugins.JWT_NAME
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
@@ -47,11 +46,7 @@ fun Application.configureDeleteCollectionRoute() {
 
                     return@post call.respond(
                         HttpStatusCode.OK,
-                        CollectionsResponse(
-                            id = collection.id,
-                            eventId = envelope.eventId,
-                            confirmedAt = finalLogEntry.confirmedAt
-                        )
+                        finalLogEntry
                     )
                 } catch (e: CollectionDeleteFailedException) {
                     logger.error { "Delete collection transaction failed at delete query: ${e.localizedMessage}" }

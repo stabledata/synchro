@@ -5,7 +5,6 @@ import com.stabledata.DatabaseOperations
 import com.stabledata.dao.CollectionsTable
 import com.stabledata.dao.LogsTable
 import com.stabledata.endpoint.io.CollectionRequest
-import com.stabledata.endpoint.io.CollectionsResponse
 import com.stabledata.plugins.JWT_NAME
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
@@ -57,11 +56,7 @@ fun Application.configureCreateCollectionRoute() {
 
                     return@post call.respond(
                         HttpStatusCode.OK,
-                        CollectionsResponse(
-                            id = collection.id,
-                            eventId = envelope.eventId,
-                            confirmedAt = finalLogEntry.confirmedAt
-                        )
+                        finalLogEntry
                     )
 
                 } catch (e: ExposedSQLException) {

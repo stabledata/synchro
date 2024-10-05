@@ -5,7 +5,6 @@ import com.stabledata.dao.CollectionUpdateFailedException
 import com.stabledata.dao.CollectionsTable
 import com.stabledata.dao.LogsTable
 import com.stabledata.endpoint.io.CollectionRequest
-import com.stabledata.endpoint.io.CollectionsResponse
 import com.stabledata.plugins.JWT_NAME
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
@@ -46,11 +45,7 @@ fun Application.configureUpdateCollectionRoute() {
 
                     return@post call.respond(
                         HttpStatusCode.OK,
-                        CollectionsResponse(
-                            id = collection.id,
-                            eventId = envelope.eventId,
-                            confirmedAt = finalLogEntry.confirmedAt
-                        )
+                        finalLogEntry
                     )
                 } catch (e: CollectionUpdateFailedException) {
                     logger.error { "Update collection transaction failed at update query: ${e.localizedMessage}" }
