@@ -32,7 +32,6 @@ suspend fun PipelineContext<Unit, ApplicationCall>.idempotent(
     val eventId = call.request.headers[StableEventIdHeader]
     val createdAt = call.request.headers[StableEventCreatedOnHeader]
 
-
     val envelope = Envelope(
         eventId = eventId ?:
         Generators.timeBasedEpochGenerator().generate().toString(),

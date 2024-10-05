@@ -49,6 +49,7 @@ fun Application.configureDeleteCollectionRoute() {
                         HttpStatusCode.OK,
                         CollectionsResponse(
                             id = collection.id,
+                            eventId = envelope.eventId,
                             confirmedAt = finalLogEntry.confirmedAt
                         )
                     )

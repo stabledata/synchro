@@ -4,6 +4,7 @@ import com.stabledata.envFlag
 import com.stabledata.generateTokenForTesting
 import com.stabledata.hikari
 import com.stabledata.plugins.JWT_NAME
+import com.stabledata.uuidString
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.application.*
@@ -35,9 +36,11 @@ fun Application.configureChoresRouting() {
 
             logger.info { "Token endpoint called, responding with token" }
 
-            // JWT token issuing logic goes here
             val jwtToken = generateTokenForTesting()
-            call.respond(HttpStatusCode.OK, mapOf("token" to jwtToken))
+            call.respond(HttpStatusCode.OK, mapOf(
+                "token" to jwtToken,
+                "uuid" to uuidString()
+            ))
         }
 
         authenticate(JWT_NAME) {

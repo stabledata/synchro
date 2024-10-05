@@ -55,11 +55,11 @@ fun Application.configureCreateCollectionRoute() {
 
                     logger.debug {"Collection created at path '${collection.path} with id ${collection.id}" }
 
-
                     return@post call.respond(
                         HttpStatusCode.OK,
                         CollectionsResponse(
                             id = collection.id,
+                            eventId = envelope.eventId,
                             confirmedAt = finalLogEntry.confirmedAt
                         )
                     )

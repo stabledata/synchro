@@ -14,12 +14,13 @@ fun getStableJwtSecret(): String {
 }
 
  fun generateJwtTokenWithCredentials(userCredentials: UserCredentials): String {
+     val oneWeekInMillis = 7 * 24 * 60 * 60 * 1000
      return JWT
              .create()
              .withClaim("email", userCredentials.email)
              .withClaim("team", userCredentials.team)
              .withClaim("id", userCredentials.id)
-             .withExpiresAt(Date(System.currentTimeMillis() + 60000))
+             .withExpiresAt(Date(System.currentTimeMillis() + oneWeekInMillis))
          .sign(Algorithm.HMAC256(getStableJwtSecret()))
  }
 

@@ -48,6 +48,7 @@ fun Application.configureUpdateCollectionRoute() {
                         HttpStatusCode.OK,
                         CollectionsResponse(
                             id = collection.id,
+                            eventId = envelope.eventId,
                             confirmedAt = finalLogEntry.confirmedAt
                         )
                     )

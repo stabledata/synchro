@@ -28,5 +28,6 @@ data class CollectionRequest (
 @Serializable
 data class CollectionsResponse (
     val id: String,
+    val eventId: String,
     val confirmedAt: Long?
 )
