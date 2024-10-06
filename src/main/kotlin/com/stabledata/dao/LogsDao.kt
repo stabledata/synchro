@@ -49,7 +49,7 @@ class LogEntryBuilder {
         return LogEntry(
             id = requireNotNull(id) { "id $providedExplainer" },
             teamId = requireNotNull(teamId) { "team_id $providedExplainer" },
-            path = requireNotNull(path) { "path $providedExplainer" },
+            path = path.orEmpty(),
             actorId = requireNotNull(actorId) { "actorId $providedExplainer" },
             eventType = requireNotNull(eventType) { "eventType  $providedExplainer" },
             createdAt = requireNotNull(createdAt) { "createdAt timestamp $providedExplainer" },
@@ -62,7 +62,7 @@ object LogsTable : Table("stable.logs") {
     val eventId = uuid("id")
     val teamId = text("team_id")
     val actorId = text("actor_id")
-    val path = text("path")
+    val path = text("path").nullable()
     val eventType = text("event_type")
     val createdAt = long("created_at")
     val confirmedAt = long("confirmed_at")
@@ -83,7 +83,7 @@ object LogsTable : Table("stable.logs") {
                 id = it[eventId].toString(),
                 teamId = it[teamId],
                 actorId = it[actorId],
-                path = it[path],
+                path = it[path].orEmpty(),
                 eventType = it[eventType],
                 confirmedAt = it[confirmedAt],
                 createdAt = it[createdAt]

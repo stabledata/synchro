@@ -60,6 +60,7 @@ fun Application.configureChoresRouting() {
 
                     return@get call.respond(HttpStatusCode.OK, "Migration success")
                 } catch (fe: FlywayException) {
+                    logger.error { "Flyway migration exception: $fe"  }
                     return@get call.respond(HttpStatusCode.InternalServerError, "Migration failed")
                 }
             }

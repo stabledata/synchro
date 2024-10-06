@@ -2,7 +2,6 @@ package com.stabledata.endpoint
 
 import com.stabledata.dao.LogEntryBuilder
 import com.stabledata.plugins.*
-
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*
@@ -25,18 +24,12 @@ suspend fun <T>PipelineContext<Unit, ApplicationCall>.contextualize(
         }
     } ?: return null
 
-    val userCredentials = permissions(operation) { hasPermission ->
-        if (!hasPermission) {
-            call.respond(HttpStatusCode.Forbidden,
-                "You do not have permissions to $operation")
+
+    val userCredentials = permissions(operation) { error ->
+        if (error !== null) {
+            call.respond(error.status, error.message)
         }
-    } ?: run {
-        call.respond(
-            HttpStatusCode.Unauthorized,
-            "Unable to validate request credentials"
-        )
-        return null
-    }
+    } ?: return null
 
     val envelope = idempotent { existingRecord, envelope ->
         existingRecord?.let {
@@ -51,12 +44,12 @@ suspend fun <T>PipelineContext<Unit, ApplicationCall>.contextualize(
 
     val body = bodyParser(postData)
 
-    val logEntry = LogEntryBuilder().eventType(operation)
-
-    logEntry.actorId(userCredentials.id)
-    logEntry.teamId(userCredentials.team)
-    logEntry.id(envelope.eventId)
-    logEntry.createdAt(envelope.createdAt)
+    val logEntry = LogEntryBuilder()
+        .eventType(operation)
+        .actorId(userCredentials.id)
+        .teamId(userCredentials.team)
+        .id(envelope.eventId)
+        .createdAt(envelope.createdAt)
 
     return RequestContext(
         body,

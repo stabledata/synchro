@@ -1,7 +1,7 @@
 package com.stabledata
 
 import com.stabledata.endpoint.configureChoresRouting
-import com.stabledata.endpoint.configureSchemaRouting
+import com.stabledata.endpoint.configureApplicationRouting
 import com.stabledata.plugins.configureAuth
 import com.stabledata.plugins.configureDocsRouting
 import io.ktor.http.*
@@ -35,7 +35,7 @@ fun Application.module() {
 
 
     // configure routes.
-    configureSchemaRouting()
+    configureApplicationRouting()
     configureChoresRouting()
     configureDocsRouting()
 }

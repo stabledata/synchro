@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
+import com.stabledata.plugins.Roles
 import com.stabledata.plugins.UserCredentials
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
@@ -20,12 +21,19 @@ fun getStableJwtSecret(): String {
              .withClaim("email", userCredentials.email)
              .withClaim("team", userCredentials.team)
              .withClaim("id", userCredentials.id)
+             .withClaim("role", userCredentials.role)
              .withExpiresAt(Date(System.currentTimeMillis() + oneWeekInMillis))
          .sign(Algorithm.HMAC256(getStableJwtSecret()))
  }
 
-fun generateTokenForTesting(): String {
-    val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test", "fake.id"))
+fun generateTokenForTesting(withRole: String? = Roles.Default): String {
+    val fakeCreds = UserCredentials(
+        "ben@testing.com",
+        "test",
+        "fake.id",
+        withRole
+    )
+    val token = generateJwtTokenWithCredentials(fakeCreds)
     return token
 }
 

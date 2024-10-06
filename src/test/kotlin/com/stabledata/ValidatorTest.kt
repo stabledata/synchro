@@ -75,6 +75,21 @@ class ValidatorTest {
     }
 
     @Test
+    fun `validates access creates correctly` () {
+        val validJSON = """
+            {
+               "id": "${uuidString()}",
+               "role": "test.role", 
+               "operation": "collection/create"
+            }
+        """.trimIndent()
+
+        val (isValid, errors) = validateJSONUsingSchema("access/create.json", validJSON)
+        assert(isValid)
+        assert(errors.isEmpty())
+    }
+
+    @Test
     fun `validates invalid schemas correctly` () {
         
         val invalidJSON = """

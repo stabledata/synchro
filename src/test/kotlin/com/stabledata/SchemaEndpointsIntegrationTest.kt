@@ -13,7 +13,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
     "schema collection create, update, delete workflow" should {
 
         val faker = Faker()
-        val token = generateTokenForTesting()
+        val token = generateTokenForTesting("admin")
         val collectionPath = faker.lorem.words()
         val collectionId = uuidString()
         val creationEventId = uuidString()

@@ -45,3 +45,16 @@ CREATE TABLE stable.fields (
    hidden boolean
 );
 
+CREATE TABLE stable.access (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    team_id VARCHAR(255) NOT NULL,
+    type VARCHAR(5) CHECK (type IN ('grant', 'deny')) NOT NULL,
+    role VARCHAR(255) NOT NULL,
+    operation VARCHAR(255),
+    path VARCHAR(255),
+    CONSTRAINT either_operation_or_path CHECK (
+        (operation IS NOT NULL AND path IS NULL) OR
+        (path IS NOT NULL AND operation IS NULL)
+    )
+);
+
