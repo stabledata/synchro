@@ -55,7 +55,7 @@ fun Application.configureCreateCollectionRoute() {
                     logger.debug {"Collection created at path '${collection.path} with id ${collection.id}" }
 
                     return@post call.respond(
-                        HttpStatusCode.OK,
+                        HttpStatusCode.Created,
                         finalLogEntry
                     )
 

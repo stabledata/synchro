@@ -2,7 +2,7 @@ openapi: 3.0.0
 info:
   title: Stable
   description: Schema, permissions and data management
-  version: 1.0.0
+  version: 0.0.0-alpha
 servers:
   - url: http://localhost:8080
     description: Development server
@@ -30,6 +30,10 @@ paths:
       responses:
         '201':
           description: Collection created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
         '400':
           description: Invalid request payload
         '401':
@@ -53,6 +57,10 @@ paths:
       responses:
         '200':
           description: Collection updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
         '400':
           description: Invalid request payload
         '401':
@@ -78,6 +86,10 @@ paths:
       responses:
         '200':
           description: Collection updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
         '400':
           description: Invalid request payload
         '401':
@@ -88,7 +100,29 @@ paths:
           description: Conflict, event-id already processed
 
 components:
-  schemas: {}
+  schemas:
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        teamId:
+          type: string
+        path:
+          type: string
+        actorId:
+          type: string
+        eventType:
+          type: string
+        createdAt:
+          type: integer
+          format: int64
+          description: "Timestamp when the log entry was created (in milliseconds)"
+        confirmedAt:
+          type: integer
+          format: int64
+          description: "Timestamp when the event was synchronized confirmed (in milliseconds)"
+
   parameters:
     XStableEventId:
       name: x-stable-event-id

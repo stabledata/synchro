@@ -34,10 +34,9 @@ suspend fun PipelineContext<Unit, ApplicationCall>.idempotent(
 
     val envelope = Envelope(
         eventId = eventId ?:
-        Generators.timeBasedEpochGenerator().generate().toString(),
+            Generators.timeBasedEpochGenerator().generate().toString(),
         createdAt = createdAt?.toLong() ?:
-        System.currentTimeMillis()
-
+            System.currentTimeMillis()
     )
 
     // if there is no event id in the header, we can short circuit false

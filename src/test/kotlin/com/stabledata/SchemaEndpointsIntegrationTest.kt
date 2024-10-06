@@ -39,7 +39,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                         """.trimIndent()
                     )
                 }
-                assertEquals(HttpStatusCode.OK, response.status)
+                assertEquals(HttpStatusCode.Created, response.status)
             }
         }
 
