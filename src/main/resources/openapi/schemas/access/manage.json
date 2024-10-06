@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string",
+      "format": "uuid",
+      "description": "Unique identifier access control record"
+    },
+    "role": {
+      "type": "string",
+      "description": "Role associated with this access entry"
+    },
+    "path": {
+      "type": "string",
+      "description": "Path to the resource (or operation) for which access is granted or denied"
+    }
+  },
+  "required": ["id", "role", "path"],
+  "additionalProperties": false
+}

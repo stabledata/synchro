@@ -12,6 +12,7 @@ import kotlin.test.assertEquals
 class AccessIntegrationTest: WordSpec({
     "access controls test" should {
         val ruleCreationEventId = uuidString()
+        val ruleDeleteEventId = uuidString()
         val ruleId = uuidString()
         val tokenForCustomRole = generateTokenForTesting("test.role")
         val adminToken = generateTokenForTesting(Roles.Admin)
@@ -60,7 +61,7 @@ class AccessIntegrationTest: WordSpec({
                             {
                                "id": "$ruleId",
                                "role": "test.role", 
-                               "operation": "collection/create"
+                               "path": "collection/create"
                             }
                         """.trimIndent()
                     )
@@ -110,6 +111,31 @@ class AccessIntegrationTest: WordSpec({
 //                    )
 //                }
 //                assertEquals(HttpStatusCode.OK, deleteResponse.status)
+            }
+        }
+
+
+        "should delete the access role it previously created" {
+            testApplication {
+                application {
+                    module()
+                }
+                val response = client.post("/access/delete") {
+                    headers {
+                        append(HttpHeaders.Authorization, "Bearer $adminToken")
+                        append(StableEventIdHeader, ruleDeleteEventId)
+                    }
+                    contentType(ContentType.Application.Json)
+                    setBody("""
+                             {
+                               "id": "$ruleId",
+                               "role": "test.role", 
+                               "path": "collection/create"
+                            }
+                        """.trimIndent()
+                    )
+                }
+                assertEquals(HttpStatusCode.Created, response.status)
             }
         }
 

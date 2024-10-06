@@ -4,6 +4,7 @@ import io.ktor.server.application.*
 fun Application.configureApplicationRouting() {
     // access controls
     configureAccessCreateRoute()
+    configureAccessDeleteRoute()
 
     // schema
     configureCreateCollectionRoute()

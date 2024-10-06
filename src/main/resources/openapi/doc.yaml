@@ -101,14 +101,36 @@ paths:
 
   /access/grant:
     post:
-      summary: Grant or Deny Access
-      description: Grant a specific role access to an operation or resource.
+      summary: Grant or deny role access
+      description: Grant a specific user role access to admin operations or resources.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: './schemas/access/create.json'
+              $ref: './schemas/access/manage.json'
+      responses:
+        201:
+          description: Access granted successfully
+          content:
+            application/json:
+              schema:
+                $ref: './schemas/event.json'
+        401:
+          description: Unauthorized
+        403:
+          description: Forbidden
+
+  /access/delete:
+    post:
+      summary: Removes all access records
+      description: Deletes any records matching the request against role, path or resource
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: './schemas/access/manage.json'
       responses:
         201:
           description: Access record saved successfully

@@ -2,33 +2,26 @@ package com.stabledata.dao
 
 import com.stabledata.endpoint.io.AccessRequest
 import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 data class AccessRecord(
     val id: String,
     val teamId: String,
-    val type: String,
+    val type: String?,
     val role: String,
-    val operation: String?,
-    val path: String?
+    val path: String
 )
 
 object AccessTable: Table("stable.access") {
     val accessId = uuid("id")
-    val teamId = varchar("team_id", 255)
-    val kind = varchar("type", 5).check {
+    val teamId = text("team_id")
+    val kind = text("type").check {
         it inList listOf("grant", "deny")
     }
-    val role = varchar("role", 255)
-    val operation = varchar("operation", 255).nullable()
-    val path = varchar("path", 255).nullable()
-
-    init {
-        check("either_operation_or_path") {
-            (operation.isNotNull() and path.isNull()) or (operation.isNull() and path.isNotNull())
-        }
-    }
+    val role = text("role")
+    val path = text("path")
 
     fun insertFromRequest(type: String, team: String, record: AccessRequest) {
         AccessTable.insert { row ->
@@ -37,24 +30,27 @@ object AccessTable: Table("stable.access") {
             row[teamId] = team
             row[role] = record.role
             row[path] = record.path
-            row[operation] = record.operation
-
-
 
         }
     }
 
-    fun findMatchingRules(operationOrPath: String, team: String, checkRole: String): Pair<List<AccessRecord>, List<AccessRecord>> {
+    fun deleteRulesForOperationAndRole(team: String, checkRole: String, checkPath: String) {
+        AccessTable.deleteWhere {
+            (teamId eq team) and
+            (role eq checkRole) and
+            (path eq checkPath)
+        }
+    }
+
+    fun findMatchingRules(team: String, checkRole: String, checkPath: String): Pair<List<AccessRecord>, List<AccessRecord>> {
         val rules = transaction {
             // Later: make paths matchable in parts
             AccessTable
                 .select {
                     (teamId eq team) and
                     (role eq checkRole) and
-                    (
-                        (operation eq operationOrPath) or
-                        (path eq operationOrPath)
-                    )
+                    (path eq checkPath)
+
                 }
                 .map {
                     AccessRecord(
@@ -62,7 +58,6 @@ object AccessTable: Table("stable.access") {
                         teamId = it[teamId],
                         type = it[kind],
                         role = it[role],
-                        operation = it[operation],
                         path = it[path]
                     )
                 }
@@ -73,4 +68,6 @@ object AccessTable: Table("stable.access") {
 
         return Pair(allowingRules, blockingRules)
     }
+
+
 }

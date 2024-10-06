@@ -94,9 +94,9 @@ suspend fun PipelineContext<Unit, ApplicationCall>.permissions(
             userCredentials.role
 
         val (allowingRules, blockingRules) = AccessTable.findMatchingRules(
-            operation,
             userCredentials.team,
-            roleToCheck
+            checkRole = roleToCheck,
+            checkPath = operation
         )
 
         var hasPermission = false

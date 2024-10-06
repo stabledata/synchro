@@ -14,13 +14,13 @@ import io.ktor.server.routing.*
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.transactions.transaction
 
-fun Application.configureAccessCreateRoute() {
+fun Application.configureAccessDeleteRoute() {
 
     val logger = KotlinLogging.logger {}
 
     routing {
         authenticate(JWT_NAME) {
-            post("access/grant") {
+            post("access/delete") {
                 val (access, user, envelope, logEntry) = contextualize(
                     "access/manage"
                 ) { postData ->
@@ -28,20 +28,19 @@ fun Application.configureAccessCreateRoute() {
                 } ?: return@post
 
                 // slightly borrowed, but not crazy use case issues in logs anyway
-                logEntry.path("grant")
+                logEntry.path("delete")
 
-                logger.debug { "Grant access to roles requested by ${user.id} with event id ${envelope.eventId}" }
+                logger.debug { "All access records removal requested by ${user.id} with event id ${envelope.eventId}" }
 
                 try {
                     val finalLogEntry = logEntry.build()
-
                     transaction {
-                        AccessTable.insertFromRequest("grant", user.team, access)
+                        AccessTable.deleteRulesForOperationAndRole(user.team, access.role, access.path)
                         LogsTable.insertLogEntry(finalLogEntry)
-                        Ably.publish(user.team, "access/manage", finalLogEntry)
+                        Ably.publish(user.team, "access/delete", finalLogEntry)
                     }
 
-                    logger.debug {"Access control record created for role ${access.role} on path ${access.path}" }
+                    logger.debug {"Access control record deleted for role ${access.role} on path ${access.path}" }
 
                     return@post call.respond(
                         HttpStatusCode.Created,
@@ -49,7 +48,7 @@ fun Application.configureAccessCreateRoute() {
                     )
 
                 } catch (e: ExposedSQLException) {
-                    logger.error { "Grant access record failed: ${e.localizedMessage}" }
+                    logger.error { "Delete access record failed: ${e.localizedMessage}" }
                     return@post call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
                 }
             }

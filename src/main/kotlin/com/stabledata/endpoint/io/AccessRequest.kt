@@ -6,9 +6,9 @@ import kotlinx.serialization.json.Json
 @Serializable
 data class AccessRequest (
     val id: String,
+    val type: String?,
     val role: String,
-    val operation: String?,
-    val path: String?
+    val path: String
 ) {
     companion object {
         fun fromJSON (json: String): AccessRequest {
