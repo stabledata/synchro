@@ -21,7 +21,8 @@ fun Application.configureUpdateCollectionRoute() {
     routing {
         authenticate(JWT_NAME) {
             post("schema/collection/update") {
-                val (collection, user, envelope, logEntry) = contextualize(
+                val (collection, user, envelope, logEntry) = contextualizeWriteRequest(
+                    "collection/update",
                     "collection/update"
                 ) { postData ->
                     CollectionRequest.fromJSON(postData)

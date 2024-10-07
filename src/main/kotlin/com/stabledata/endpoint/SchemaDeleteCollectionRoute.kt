@@ -24,7 +24,8 @@ fun Application.configureDeleteCollectionRoute() {
     routing {
         authenticate(JWT_NAME) {
             post("schema/collection/delete") {
-                val (collection, user, envelope, logEntry) = contextualize(
+                val (collection, user, envelope, logEntry) = contextualizeWriteRequest(
+                    "collection/delete",
                     "collection/delete"
                 ) { postData ->
                     CollectionRequest.fromJSON(postData)

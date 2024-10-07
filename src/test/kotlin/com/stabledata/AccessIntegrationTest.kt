@@ -85,7 +85,8 @@ class AccessIntegrationTest: WordSpec({
                         append(StableEventIdHeader, createCollectionId)
                     }
                     contentType(ContentType.Application.Json)
-                    setBody("""
+                    setBody(
+                        """
                             {
                                "id":"$collectionId",
                                "path":"$collectionPath"
@@ -95,25 +96,8 @@ class AccessIntegrationTest: WordSpec({
                 }
                 assertEquals(HttpStatusCode.Created, response.status)
 
-//                val deleteResponse = client.post("/schema/collection/delete") {
-//                    headers {
-//                        append(HttpHeaders.Authorization, "Bearer $tokenForCustomRole")
-//                        append(StableEventIdHeader, uuidString())
-//                    }
-//                    contentType(ContentType.Application.Json)
-//                    setBody(
-//                        """
-//                        {
-//                           "id":"$collectionId",
-//                           "path":"$collectionPath"
-//                        }
-//                    """.trimIndent()
-//                    )
-//                }
-//                assertEquals(HttpStatusCode.OK, deleteResponse.status)
             }
         }
-
 
         "should delete the access role it previously created" {
             testApplication {
@@ -138,7 +122,5 @@ class AccessIntegrationTest: WordSpec({
                 assertEquals(HttpStatusCode.Created, response.status)
             }
         }
-
-
     }
 })

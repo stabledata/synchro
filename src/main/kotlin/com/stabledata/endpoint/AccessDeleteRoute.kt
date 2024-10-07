@@ -21,7 +21,8 @@ fun Application.configureAccessDeleteRoute() {
     routing {
         authenticate(JWT_NAME) {
             post("access/delete") {
-                val (access, user, envelope, logEntry) = contextualize(
+                val (access, user, envelope, logEntry) = contextualizeWriteRequest(
+                    "access/delete",
                     "access/manage"
                 ) { postData ->
                     AccessRequest.fromJSON(postData)

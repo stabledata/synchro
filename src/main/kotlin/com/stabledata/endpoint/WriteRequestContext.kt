@@ -7,23 +7,23 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.util.pipeline.*
 
-data class RequestContext<T>(
+data class WriteRequestContext<T>(
     val body: T,
     val userCredentials: UserCredentials,
     val envelope: Envelope,
     val logEntry: LogEntryBuilder
 )
 
-suspend fun <T>PipelineContext<Unit, ApplicationCall>.contextualize(
+suspend fun <T>PipelineContext<Unit, ApplicationCall>.contextualizeWriteRequest(
     operation: String,
-    bodyParser: suspend(body: String) -> T
-): RequestContext<T>? {
-    val postData = validate("$operation.json") { isValid, errors ->
+    jsonSchema: String,
+    bodyParser: suspend (body: String) -> T
+): WriteRequestContext<T>? {
+    val postData = validate("$jsonSchema.json") { isValid, errors ->
         if (!isValid) {
             call.respond(HttpStatusCode.BadRequest, errors)
         }
     } ?: return null
-
 
     val userCredentials = permissions(operation) { error ->
         if (error !== null) {
@@ -51,7 +51,7 @@ suspend fun <T>PipelineContext<Unit, ApplicationCall>.contextualize(
         .id(envelope.eventId)
         .createdAt(envelope.createdAt)
 
-    return RequestContext(
+    return WriteRequestContext(
         body,
         userCredentials,
         envelope,

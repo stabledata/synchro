@@ -22,7 +22,8 @@ fun Application.configureCreateCollectionRoute() {
     routing {
         authenticate(JWT_NAME) {
             post("schema/collection/create") {
-                val (collection, user, envelope, logEntry) = contextualize(
+                val (collection, user, envelope, logEntry) = contextualizeWriteRequest(
+                    "collection/create",
                     "collection/create"
                 ) { postData ->
                     CollectionRequest.fromJSON(postData)
@@ -34,11 +35,12 @@ fun Application.configureCreateCollectionRoute() {
                 logEntry.path(collection.path)
 
                 // check if the table exists already at the path
-                // but... we should also check for collections that might have that path
+                // but... we should also check for collections that might have that path,
+                // so... more to do here at some point
                 if (DatabaseOperations.tableExistsAtPath(user.team, collection.path)) {
                     return@post call.respond(
                         HttpStatusCode.Conflict,
-                        "path ${collection.path} already exists"
+                        "Path ${collection.path} already exists"
                     )
                 }
 
