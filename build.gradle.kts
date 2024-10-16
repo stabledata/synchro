@@ -1,3 +1,4 @@
+import com.google.gradle.osdetector.OsDetector
 
 val kotlin_version: String by project
 val logback_version: String by project
@@ -5,10 +6,12 @@ val ktor_version: String by project
 
 plugins {
     kotlin("jvm") version "2.0.20"
-    id("io.ktor.plugin") version "2.3.12"
     kotlin("plugin.serialization") version "2.0.20"
+    id("io.ktor.plugin") version "2.3.12"
     id("org.openapi.generator") version "7.8.0"
+    id("com.google.protobuf") version "0.9.4"
 }
+
 
 group = "com.stabledata"
 version = "0.0.1"
@@ -26,9 +29,44 @@ repositories {
 
 sourceSets {
     main {
-        java.srcDirs("src/main/kotlin/cli")
+        java.srcDirs("src/main/kotlin/chores")
+        proto {
+            srcDir("src/main/resources/proto")  // Specify the proto files location
+        }
     }
 }
+
+protobuf {
+    protoc {
+        artifact = if (project.extensions.getByType(OsDetector::class).os == "osx") {
+            "com.google.protobuf:protoc:3.14.0:osx-x86_64"
+        } else {
+            "com.google.protobuf:protoc:3.14.0"
+        }
+    }
+    plugins {
+        create("grpc"){
+            artifact = "io.grpc:protoc-gen-grpc-java:1.52.1"
+        }
+//        create("grpckt") {
+//            artifact = "com.google.protobuf:protoc-gen-kotlin:3.17.3"
+//        }
+    }
+    generateProtoTasks {
+        all().forEach { task ->
+
+            task.plugins {
+                create("grpc")
+                // create("grpckt")
+
+            }
+//            task.builtins {
+//                create("kotlin")
+//            }
+        }
+    }
+}
+
 
 tasks.register<JavaExec>("migrate") {
     group = "Execution"
@@ -61,12 +99,13 @@ openApiValidate {
 openApiGenerate {
     inputSpec.set("$rootDir/src/main/resources/openapi/doc.yaml")
     outputDir.set("$rootDir/client")
-    generatorName.set("typescript-fetch")
+    generatorName.set("typescript")
     templateDir.set("$rootDir/src/main/resources/openapi/templates")
     additionalProperties.putAll(
         mapOf(
-            "npmPackageName" to "@stabledata/client",
-            "npmPackageVersion" to version
+            "npmPackageName" to "@stabledata/synchro-client",
+            "npmPackageVersion" to version,
+            "useObjectParameters" to "true"
         )
     )
 }
@@ -115,6 +154,8 @@ dependencies {
     implementation("io.ktor:ktor-server-auth:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
+
     // serialization  + json + validation
     implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
@@ -122,6 +163,15 @@ dependencies {
     implementation("io.ktor:ktor-serialization-gson:2.3.1")
     implementation("com.google.code.gson:gson:2.9.0")
 
+
+    // grpc
+    implementation("io.grpc:grpc-netty-shaded:1.42.1")
+    // FIXME: this is still vulnerable!
+    // https://github.com/protocolbuffers/protobuf/security/advisories/GHSA-735f-pc8j-v9w8
+    implementation("io.grpc:grpc-protobuf:1.68.0")
+    implementation("io.grpc:grpc-stub:1.57.2")
+    implementation("javax.annotation:javax.annotation-api:1.3.2")
+    implementation("io.grpc:grpc-services:1.42.1")
 
     // db
     implementation("org.postgresql:postgresql:42.7.2")
@@ -153,5 +203,6 @@ dependencies {
     testImplementation("io.kotest:kotest-framework-engine:5.9.0")
     testImplementation("io.github.serpro69:kotlin-faker:1.16.0")
     testImplementation("io.mockk:mockk:1.13.4")
+    testImplementation("io.grpc:grpc-testing:1.66.0")
 
 }
