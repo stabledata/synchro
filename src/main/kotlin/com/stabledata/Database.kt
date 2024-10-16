@@ -2,7 +2,6 @@ package com.stabledata
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
-import org.jetbrains.exposed.sql.transactions.transaction
 import kotlin.concurrent.Volatile
 
 
@@ -43,7 +42,11 @@ object DatabaseOperations {
         val cleanTeamName = sanitizeString(team)
         return """
             CREATE SCHEMA IF NOT EXISTS $team;
-            CREATE TABLE $cleanTeamName.$tableName (id UUID PRIMARY KEY)
+            CREATE TABLE $cleanTeamName.$tableName (
+                id uuid PRIMARY KEY,
+                nano_id varchar(8) NOT NULL
+            );
+            CREATE INDEX ${cleanTeamName}_${tableName}_idx_nano ON $cleanTeamName.$tableName (nano_id);
         """.trimIndent()
     }
 
@@ -54,25 +57,4 @@ object DatabaseOperations {
             DROP TABLE $cleanTeamName.$tableName
         """.trimIndent()
     }
-
-    fun tableExistsAtPath(team: String, path: String): Boolean {
-        val tableName = sanitizeString(convertPath(path))
-        val cleanTeamName = sanitizeString(team)
-        val existsQuery = """
-            SELECT EXISTS (
-                SELECT 1 
-                FROM information_schema.tables 
-                WHERE table_schema = '$cleanTeamName' 
-                AND table_name = '$tableName'
-            );
-            """.trimIndent()
-        val existsResult = transaction {
-            exec(existsQuery) {
-                it.next() // Move to the first result
-                it.getBoolean(1) // Get the boolean value of the result
-            }
-        }
-        return existsResult ?: false
-    }
-
 }

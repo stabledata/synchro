@@ -12,7 +12,6 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Application.configureCreateCollectionRoute() {
@@ -35,42 +34,36 @@ fun Application.configureCreateCollectionRoute() {
                 logEntry.path(collection.path)
 
                 // check for existing SQL table
-                if (DatabaseOperations.tableExistsAtPath(user.team, collection.path)) {
-                    return@post call.respond(
-                        HttpStatusCode.Conflict,
-                        "Path ${collection.path} already exists"
-                    )
-                }
+//                if (DatabaseOperations.tableExistsAtPath(user.team, collection.path)) {
+//                    return@post call.respond(
+//                        HttpStatusCode.Conflict,
+//                        "Table at ${collection.path} already exists"
+//                    )
+//                }
 
                 // also check for id collision, since this is not retryable.
-                CollectionsTable.getCollection(collection.id)?.run {
+                CollectionsTable.getAtPath(collection.path)?.run {
                     return@post call.respond(
                         HttpStatusCode.Conflict,
-                        "Collection id ${collection.id} already exists"
+                        "Collection at ${collection.path} already exists"
                     )
                 }
 
-                try {
-                    val finalLogEntry = logEntry.build()
+                val finalLogEntry = logEntry.build()
 
-                    transaction {
-                        exec(DatabaseOperations.createTableAtPathSQL(user.team, collection.path))
-                        CollectionsTable.insertRowFromRequest(user.team, collection)
-                        LogsTable.insertLogEntry(finalLogEntry)
-                        Ably.publish(user.team, "collection/create", finalLogEntry)
-                    }
-
-                    logger.debug {"Collection created at path '${collection.path} with id ${collection.id}" }
-
-                    return@post call.respond(
-                        HttpStatusCode.Created,
-                        finalLogEntry
-                    )
-
-                } catch (e: ExposedSQLException) {
-                    logger.error { "Create collection transaction failed: ${e.localizedMessage}" }
-                    return@post call.respond(HttpStatusCode.InternalServerError, "Synchro service error")
+                transaction {
+                    CollectionsTable.insertRowFromRequest(user.team, collection)
+                    exec(DatabaseOperations.createTableAtPathSQL(user.team, collection.path))
+                    LogsTable.insertLogEntry(finalLogEntry)
+                    Ably.publish(user.team, "collection/create", finalLogEntry)
                 }
+
+                logger.debug {"Collection created at path '${collection.path}" }
+
+                return@post call.respond(
+                    HttpStatusCode.Created,
+                    finalLogEntry
+                )
             }
         }
     }

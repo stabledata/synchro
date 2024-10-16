@@ -150,7 +150,7 @@ dependencies {
     implementation("io.ktor:ktor-server-content-negotiation:2.2.4")
     implementation("io.ktor:ktor-server-openapi:$ktor_version")
     implementation("io.ktor:ktor-server-cors:$ktor_version")
-
+    implementation("io.ktor:ktor-server-status-pages:2.0.0")
     implementation("io.ktor:ktor-server-auth:$ktor_version")
     implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
 

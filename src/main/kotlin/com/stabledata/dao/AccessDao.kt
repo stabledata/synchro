@@ -16,7 +16,7 @@ data class AccessRecord(
 
 object AccessTable: Table("stable.access") {
     val accessId = uuid("id")
-    val teamId = text("team_id")
+    val teamId = text("team")
     val kind = text("type").check {
         it inList listOf("grant", "deny")
     }

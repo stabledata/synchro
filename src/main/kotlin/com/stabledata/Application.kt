@@ -4,6 +4,7 @@ import com.stabledata.endpoint.configureApplicationRouting
 import com.stabledata.endpoint.configureChoresRouting
 import com.stabledata.plugins.configureAuth
 import com.stabledata.plugins.configureDocsRouting
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
 import io.grpc.protobuf.services.ProtoReflectionService
 import io.ktor.http.*
@@ -14,6 +15,8 @@ import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.plugins.cors.routing.*
+import io.ktor.server.plugins.statuspages.*
+import io.ktor.server.response.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -61,11 +64,6 @@ fun Application.module() {
     configureDocsRouting()
 }
 
-
-
-/*
-Handles non-injectable setup
- */
 fun Application.configurePlugins () {
     install(ContentNegotiation) {
         json(Json { prettyPrint = true })
@@ -79,4 +77,30 @@ fun Application.configurePlugins () {
         allowMethod(HttpMethod.Get)
     }
     configureAuth()
+    configureErrorHandling()
+}
+fun Application.configureErrorHandling() {
+
+    val logger = KotlinLogging.logger {}
+
+    install(StatusPages) {
+
+        exception<SQLConflictException> { call, err ->
+            val ref = uuidString()
+            logger.error { "${err.localizedMessage} ref: $ref" }
+            call.respond(HttpStatusCode.Conflict, err.localizedMessage)
+        }
+
+        exception<SQLNotFoundException> { call, err ->
+            val ref = uuidString()
+            logger.error { "${err.localizedMessage} ref: $ref" }
+            call.respond(HttpStatusCode.NotFound, "Not found: $ref")
+        }
+
+        exception<Throwable> { call, err ->
+            val ref = uuidString()
+            logger.error { "${err.localizedMessage} ref: $ref" }
+            call.respond(HttpStatusCode.InternalServerError, "Synchro failed. Ref: $ref")
+        }
+    }
 }

@@ -16,6 +16,7 @@ class SchemaEndpointsIntegrationTest : WordSpec({
         val token = generateTokenForTesting("admin")
         val collectionPath = faker.lorem.words()
         val collectionId = uuidString()
+        val collectionIdForPathCheck = uuidString()
         val creationEventId = uuidString()
         val updateEventId = uuidString()
 
@@ -80,8 +81,31 @@ class SchemaEndpointsIntegrationTest : WordSpec({
                     setBody(
                         """
                     {
-                       "id":"$collectionId",
+                       "id":"$collectionIdForPathCheck",
                        "path":"$collectionPath"
+                    }
+                """.trimIndent()
+                    )
+                }
+                assertEquals(HttpStatusCode.Conflict, response.status)
+            }
+        }
+
+        "returns conflict on existing id" {
+            testApplication {
+                application {
+                    module()
+                }
+                val response = client.post("/schema/collection/create") {
+                    headers {
+                        append(HttpHeaders.Authorization, "Bearer $token")
+                    }
+                    contentType(ContentType.Application.Json)
+                    setBody(
+                        """
+                    {
+                       "id":"$collectionId",
+                       "path":"new.path.existing.id"
                     }
                 """.trimIndent()
                     )

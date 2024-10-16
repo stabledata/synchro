@@ -1,17 +1,20 @@
 package com.stabledata.dao
 
+import com.stabledata.SQLConflictException
+import com.stabledata.SQLNotFoundException
 import com.stabledata.endpoint.io.CollectionRequest
+import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
-class CollectionUpdateFailedException(path: String) : Exception("Failed to update collection at path $path")
-class CollectionDeleteFailedException(path: String) : Exception("Failed to delete collection at path $path")
-
 object CollectionsTable : Table("stable.collections") {
+
+    val logger = KotlinLogging.logger {}
+
     val id = uuid("id")
-    val team_id = text("team_id")
+    private val team_id = text("team")
     val path = text("path")
     val type = text("type").nullable()
     val label = text("label").nullable()
@@ -19,17 +22,22 @@ object CollectionsTable : Table("stable.collections") {
     val description = text("description").nullable()
 
     fun insertRowFromRequest(team: String, insert: CollectionRequest): UUID {
+        return try {
             CollectionsTable.insert { row ->
-                row[path] = insert.path
                 row[id] = UUID.fromString(insert.id)
+                row[path] = insert.path
                 row[team_id] = team
                 row[type] = insert.type
                 row[label] = insert.label
                 row[icon] = insert.icon
                 row[description] = insert.description
             }
+            UUID.fromString(insert.id)
+        } catch (e: Exception) {
+            logger.error { "Exception inserting collection ${e.localizedMessage}" }
+            throw SQLConflictException("Failed to insert collection")
+        }
 
-        return UUID.fromString(insert.id)
     }
 
     fun updateAtPath(path: String, update: CollectionRequest): CollectionRequest {
@@ -44,23 +52,25 @@ object CollectionsTable : Table("stable.collections") {
         // we might want to think about that number logic
         // but, should never be more than one since we check for records at path before create
         return if (numRecordsUpdated == 1) { update } else {
-            throw CollectionUpdateFailedException(path)
+            throw SQLNotFoundException("Failed to update collection at path: $path")
         }
     }
 
-    fun getCollection(collectionId: String): ResultRow? {
+    fun getAtPath(path: String): ResultRow? {
         return transaction {
-            CollectionsTable.select{ CollectionsTable.id eq UUID.fromString(collectionId) }
+            CollectionsTable
+                .select{ CollectionsTable.path eq path }
                 .singleOrNull()
         }
     }
+
 
     fun deleteAtPath(path: String) {
         val numRecordsDeleted = CollectionsTable.deleteWhere {
             CollectionsTable.path eq path
         }
         if (numRecordsDeleted != 1) {
-            throw CollectionDeleteFailedException(path)
+            throw SQLNotFoundException("Failed to delete collection at path: $path")
         }
     }
 }

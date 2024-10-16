@@ -48,7 +48,7 @@ class LogEntryBuilder {
     fun build(): LogEntry {
         return LogEntry(
             id = requireNotNull(id) { "id $providedExplainer" },
-            teamId = requireNotNull(teamId) { "team_id $providedExplainer" },
+            teamId = requireNotNull(teamId) { "team $providedExplainer" },
             path = path.orEmpty(),
             actorId = requireNotNull(actorId) { "actorId $providedExplainer" },
             eventType = requireNotNull(eventType) { "eventType  $providedExplainer" },
@@ -60,7 +60,7 @@ class LogEntryBuilder {
 
 object LogsTable : Table("stable.logs") {
     val eventId = uuid("id")
-    val teamId = text("team_id")
+    val teamId = text("team")
     val actorId = text("actor_id")
     val path = text("path").nullable()
     val eventType = text("event_type")
