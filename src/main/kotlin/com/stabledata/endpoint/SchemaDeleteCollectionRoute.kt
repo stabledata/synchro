@@ -51,10 +51,10 @@ fun Application.configureDeleteCollectionRoute() {
                     )
                 } catch (e: CollectionDeleteFailedException) {
                     logger.error { "Delete collection transaction failed at delete query: ${e.localizedMessage}" }
-                    return@post call.respond(HttpStatusCode.NotFound, e.localizedMessage)
+                    return@post call.respond(HttpStatusCode.InternalServerError, "Synchro service error")
                 } catch (e: ExposedSQLException) {
                     logger.error { "Delete collection transaction failure: ${e.localizedMessage}" }
-                    return@post call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
+                    return@post call.respond(HttpStatusCode.InternalServerError, "Synchro service error")
                 }
             }
         }

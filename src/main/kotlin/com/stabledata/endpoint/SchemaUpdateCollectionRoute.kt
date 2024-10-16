@@ -50,10 +50,10 @@ fun Application.configureUpdateCollectionRoute() {
                     )
                 } catch (e: CollectionUpdateFailedException) {
                     logger.error { "Update collection transaction failed at update query: ${e.localizedMessage}" }
-                    return@post call.respond(HttpStatusCode.NotFound, e.localizedMessage)
+                    return@post call.respond(HttpStatusCode.InternalServerError, "Synchro service error")
                 } catch (e: ExposedSQLException) {
                     logger.error { "Update collection transaction failure: ${e.localizedMessage}" }
-                    return@post call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
+                    return@post call.respond(HttpStatusCode.InternalServerError, "Synchro service error")
                 }
             }
         }

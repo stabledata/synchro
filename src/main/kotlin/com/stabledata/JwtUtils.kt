@@ -14,7 +14,7 @@ fun getStableJwtSecret(): String {
     return System.getenv("JWT_SECRET") ?: "JWT_SECRET"
 }
 
- fun generateJwtTokenWithCredentials(userCredentials: UserCredentials): String {
+ fun jwtTokenWithCredentials(userCredentials: UserCredentials): String {
      val oneWeekInMillis = 7 * 24 * 60 * 60 * 1000
      return JWT
              .create()
@@ -26,14 +26,18 @@ fun getStableJwtSecret(): String {
          .sign(Algorithm.HMAC256(getStableJwtSecret()))
  }
 
-fun generateTokenForTesting(withRole: String? = Roles.Default): String {
-    val fakeCreds = UserCredentials(
-        "ben@testing.com",
-        "test",
-        "fake.id",
+fun generateTokenForTesting(
+    withRole: String? = Roles.Default,
+    withTeam: String? = "test",
+    withEmail: String? = "test@makeitstable.com"
+): String {
+    val fakeCredentials = UserCredentials(
+        withEmail.orDefault("test@makeitstable.com"),
+        withTeam.orDefault("test"),
+        "testing.user.id",
         withRole
     )
-    val token = generateJwtTokenWithCredentials(fakeCreds)
+    val token = jwtTokenWithCredentials(fakeCredentials)
     return token
 }
 
@@ -43,7 +47,6 @@ fun getVerifier (): JWTVerifier {
     return JWT
         .require(algorithm)
         .build()
-
 }
 
 fun verifyToken(token: String): DecodedJWT? {

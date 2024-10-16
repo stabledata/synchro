@@ -31,16 +31,22 @@ fun Application.configureCreateCollectionRoute() {
 
                 logger.debug { "Create collection requested by ${user.id} with event id ${envelope.eventId}" }
 
-                // consider just putting this in the envelope?
+                // consider requiring this as part of the request envelope
                 logEntry.path(collection.path)
 
-                // check if the table exists already at the path
-                // but... we should also check for collections that might have that path,
-                // so... more to do here at some point
+                // check for existing SQL table
                 if (DatabaseOperations.tableExistsAtPath(user.team, collection.path)) {
                     return@post call.respond(
                         HttpStatusCode.Conflict,
                         "Path ${collection.path} already exists"
+                    )
+                }
+
+                // also check for id collision, since this is not retryable.
+                CollectionsTable.getCollection(collection.id)?.run {
+                    return@post call.respond(
+                        HttpStatusCode.Conflict,
+                        "Collection id ${collection.id} already exists"
                     )
                 }
 
@@ -63,7 +69,7 @@ fun Application.configureCreateCollectionRoute() {
 
                 } catch (e: ExposedSQLException) {
                     logger.error { "Create collection transaction failed: ${e.localizedMessage}" }
-                    return@post call.respond(HttpStatusCode.InternalServerError, e.localizedMessage)
+                    return@post call.respond(HttpStatusCode.InternalServerError, "Synchro service error")
                 }
             }
         }

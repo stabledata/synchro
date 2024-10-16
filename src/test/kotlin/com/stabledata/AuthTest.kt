@@ -30,7 +30,7 @@ class AuthTest {
     fun `requires team to claim to match` () = testApplication {
         application { module() }
 
-        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "wrong.team", "bad.hombre"))
+        val token = jwtTokenWithCredentials(UserCredentials("ben@testing.com", "wrong.team", "bad.hombre"))
         val response = client.get("/secure") {
             headers {
                 append(HttpHeaders.Authorization, "Bearer $token")

@@ -36,9 +36,18 @@ fun Application.configureChoresRouting() {
 
             logger.info { "Token endpoint called, responding with token" }
 
-            val jwtToken = generateTokenForTesting()
+            val role = call.request.queryParameters["role"]
+            val email = call.request.queryParameters["email"]
+            val team = call.request.queryParameters["team"]
+            val jwtToken = generateTokenForTesting(
+                role,
+                team,
+                email,
+            )
             call.respond(HttpStatusCode.OK, mapOf(
                 "token" to jwtToken,
+                "team" to team,
+                "role" to role,
                 "uuid" to uuidString()
             ))
         }

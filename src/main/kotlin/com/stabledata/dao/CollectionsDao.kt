@@ -1,11 +1,9 @@
 package com.stabledata.dao
 
 import com.stabledata.endpoint.io.CollectionRequest
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.*
 
 class CollectionUpdateFailedException(path: String) : Exception("Failed to update collection at path $path")
@@ -47,6 +45,13 @@ object CollectionsTable : Table("stable.collections") {
         // but, should never be more than one since we check for records at path before create
         return if (numRecordsUpdated == 1) { update } else {
             throw CollectionUpdateFailedException(path)
+        }
+    }
+
+    fun getCollection(collectionId: String): ResultRow? {
+        return transaction {
+            CollectionsTable.select{ CollectionsTable.id eq UUID.fromString(collectionId) }
+                .singleOrNull()
         }
     }
 
