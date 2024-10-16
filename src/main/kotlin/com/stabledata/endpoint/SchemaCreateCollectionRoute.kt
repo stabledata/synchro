@@ -30,26 +30,9 @@ fun Application.configureCreateCollectionRoute() {
 
                 logger.debug { "Create collection requested by ${user.id} with event id ${envelope.eventId}" }
 
-                // consider requiring this as part of the request envelope
-                logEntry.path(collection.path)
-
-                // check for existing SQL table
-//                if (DatabaseOperations.tableExistsAtPath(user.team, collection.path)) {
-//                    return@post call.respond(
-//                        HttpStatusCode.Conflict,
-//                        "Table at ${collection.path} already exists"
-//                    )
-//                }
-
-                // also check for id collision, since this is not retryable.
-                CollectionsTable.getAtPath(collection.path)?.run {
-                    return@post call.respond(
-                        HttpStatusCode.Conflict,
-                        "Collection at ${collection.path} already exists"
-                    )
-                }
-
-                val finalLogEntry = logEntry.build()
+                val finalLogEntry = logEntry
+                    .path(collection.path)
+                    .build()
 
                 transaction {
                     CollectionsTable.insertRowFromRequest(user.team, collection)
@@ -58,7 +41,7 @@ fun Application.configureCreateCollectionRoute() {
                     Ably.publish(user.team, "collection/create", finalLogEntry)
                 }
 
-                logger.debug {"Collection created at path '${collection.path}" }
+                logger.debug { "Collection created at path '${collection.path}" }
 
                 return@post call.respond(
                     HttpStatusCode.Created,

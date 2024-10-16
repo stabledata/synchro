@@ -30,7 +30,6 @@ object AccessTable: Table("stable.access") {
             row[teamId] = team
             row[role] = record.role
             row[path] = record.path
-
         }
     }
 
