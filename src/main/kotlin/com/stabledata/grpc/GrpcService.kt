@@ -1,7 +1,7 @@
 package com.stabledata.grpc
 
-import com.stabledata.plugins.StableEventCreatedOnHeader
-import com.stabledata.plugins.StableEventIdHeader
+import com.stabledata.context.StableEventCreatedOnHeader
+import com.stabledata.context.StableEventIdHeader
 import com.stabledata.synchro.DataRequest
 import com.stabledata.synchro.DataResponse
 import com.stabledata.synchro.SynchroGrpcServiceGrpc

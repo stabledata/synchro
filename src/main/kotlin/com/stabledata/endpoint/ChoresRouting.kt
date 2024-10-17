@@ -3,7 +3,7 @@ package com.stabledata.endpoint
 import com.stabledata.envFlag
 import com.stabledata.generateTokenForTesting
 import com.stabledata.hikari
-import com.stabledata.plugins.JWT_NAME
+import com.stabledata.context.JWT_NAME
 import com.stabledata.uuidString
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*

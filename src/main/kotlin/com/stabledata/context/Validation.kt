@@ -1,4 +1,4 @@
-package com.stabledata.plugins
+package com.stabledata.context
 
 import io.github.optimumcode.json.schema.JsonSchema
 import io.github.optimumcode.json.schema.ValidationError

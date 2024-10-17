@@ -1,7 +1,7 @@
 package com.stabledata
 
-import com.stabledata.plugins.Roles
-import com.stabledata.plugins.StableEventIdHeader
+import com.stabledata.context.Roles
+import com.stabledata.context.StableEventIdHeader
 import io.github.serpro69.kfaker.Faker
 import io.kotest.core.spec.style.WordSpec
 import io.ktor.client.request.*

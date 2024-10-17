@@ -1,7 +1,7 @@
 package com.stabledata.endpoint
 
 import com.stabledata.dao.LogEntryBuilder
-import com.stabledata.plugins.*
+import com.stabledata.context.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.response.*

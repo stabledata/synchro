@@ -4,7 +4,7 @@ import com.stabledata.Ably
 import com.stabledata.dao.AccessTable
 import com.stabledata.dao.LogsTable
 import com.stabledata.model.Access
-import com.stabledata.plugins.JWT_NAME
+import com.stabledata.context.JWT_NAME
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.application.*

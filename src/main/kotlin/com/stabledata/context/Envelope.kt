@@ -1,5 +1,5 @@
 
-package com.stabledata.plugins
+package com.stabledata.context
 
 import com.fasterxml.uuid.Generators
 import com.stabledata.dao.LogsTable

@@ -4,8 +4,8 @@ import com.stabledata.endpoint.configureApplicationRouting
 import com.stabledata.endpoint.configureChoresRouting
 import com.stabledata.grpc.GrpcContextInterceptor
 import com.stabledata.grpc.GrpcService
-import com.stabledata.plugins.configureAuth
-import com.stabledata.plugins.configureDocsRouting
+import com.stabledata.context.configureAuth
+import com.stabledata.context.configureDocsRouting
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
 import io.grpc.protobuf.services.ProtoReflectionService

@@ -1,6 +1,6 @@
 package com.stabledata
 
-import com.stabledata.plugins.UserCredentials
+import com.stabledata.context.UserCredentials
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

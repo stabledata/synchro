@@ -2,6 +2,7 @@ package com.stabledata.model
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
+import stable.Schema
 
 @Serializable
 data class Collection (
@@ -21,6 +22,17 @@ data class Collection (
                 explicitNulls = false // Omit fields that are null
             }
             return jsonParser.decodeFromString<Collection>(json)
+        }
+
+        fun fromMessage(message: Schema.CollectionRequest): Collection {
+            return Collection(
+                id = message.id,
+                path = message.path,
+                description = message.description.takeIf { it.isNotBlank() },
+                icon = message.icon.takeIf { it.isNotBlank() },
+                label = message.label.takeIf { it.isNotBlank() },
+                type = message.type.takeIf { it.isNotBlank() }
+            )
         }
     }
 }

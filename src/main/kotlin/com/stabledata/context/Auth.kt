@@ -1,4 +1,4 @@
-package com.stabledata.plugins
+package com.stabledata.context
 
 import com.stabledata.dao.AccessTable
 import com.stabledata.envString

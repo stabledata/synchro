@@ -2,7 +2,7 @@ package com.stabledata
 
 import com.stabledata.endpoint.configureChoresRouting
 import com.stabledata.endpoint.configureApplicationRouting
-import com.stabledata.plugins.configureDocsRouting
+import com.stabledata.context.configureDocsRouting
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*

@@ -5,8 +5,8 @@ import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
 import com.auth0.jwt.exceptions.JWTVerificationException
 import com.auth0.jwt.interfaces.DecodedJWT
-import com.stabledata.plugins.Roles
-import com.stabledata.plugins.UserCredentials
+import com.stabledata.context.Roles
+import com.stabledata.context.UserCredentials
 import io.github.oshai.kotlinlogging.KotlinLogging
 import java.util.*
 

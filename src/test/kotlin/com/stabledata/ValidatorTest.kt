@@ -1,7 +1,7 @@
 package com.stabledata
 
 import com.fasterxml.uuid.Generators.timeBasedEpochGenerator
-import com.stabledata.plugins.validateJSONUsingSchema
+import com.stabledata.context.validateJSONUsingSchema
 import kotlin.test.Test
 
 class ValidatorTest {
