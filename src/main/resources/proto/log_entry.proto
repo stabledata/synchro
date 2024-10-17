@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package stable;
+
+// LogEntry message representing a logging event
+message LogEntry {
+  string id = 1;
+  string teamId = 2;
+  string path = 3;
+  string actorId = 4;
+  string eventType = 5;
+  int64 createdAt = 6;
+  int64 confirmedAt = 7;
+}

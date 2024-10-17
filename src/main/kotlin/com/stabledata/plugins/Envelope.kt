@@ -2,8 +2,8 @@
 package com.stabledata.plugins
 
 import com.fasterxml.uuid.Generators
-import com.stabledata.dao.LogEntry
 import com.stabledata.dao.LogsTable
+import com.stabledata.model.LogEntry
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
 import org.jetbrains.exposed.sql.transactions.transaction

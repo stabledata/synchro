@@ -2,6 +2,8 @@ package com.stabledata
 
 import com.stabledata.endpoint.configureApplicationRouting
 import com.stabledata.endpoint.configureChoresRouting
+import com.stabledata.grpc.GrpcContextInterceptor
+import com.stabledata.grpc.GrpcService
 import com.stabledata.plugins.configureAuth
 import com.stabledata.plugins.configureDocsRouting
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -31,6 +33,7 @@ fun main() {
 
         val grpcServer = NettyServerBuilder
             .forPort(grpcPort)
+            .intercept(GrpcContextInterceptor())
             .addService(GrpcService())
             .addService(ProtoReflectionService.newInstance())
             .build()

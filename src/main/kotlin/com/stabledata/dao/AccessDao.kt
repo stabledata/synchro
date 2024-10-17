@@ -1,6 +1,9 @@
 package com.stabledata.dao
 
+import com.stabledata.SQLConflictException
 import com.stabledata.model.Access
+import io.github.oshai.kotlinlogging.KotlinLogging
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -23,13 +26,20 @@ object AccessTable: Table("stable.access") {
     val role = text("role")
     val path = text("path")
 
+    val logger = KotlinLogging.logger {}
+
     fun insertFromRequest(type: String, team: String, record: Access) {
-        AccessTable.insert { row ->
-            row[accessId] = UUID.fromString(record.id)
-            row[kind] = type
-            row[teamId] = team
-            row[role] = record.role
-            row[path] = record.path
+        try {
+            AccessTable.insert { row ->
+                row[accessId] = UUID.fromString(record.id)
+                row[kind] = type
+                row[teamId] = team
+                row[role] = record.role
+                row[path] = record.path
+            }
+        } catch (e: ExposedSQLException) {
+            logger.error { "Error inserting access record: ${e.localizedMessage}" }
+            throw SQLConflictException(e.localizedMessage)
         }
     }
 

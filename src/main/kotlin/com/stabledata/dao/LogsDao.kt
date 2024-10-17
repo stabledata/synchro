@@ -1,25 +1,11 @@
 package com.stabledata.dao
 
-import kotlinx.serialization.Serializable
+import com.stabledata.model.LogEntry
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.statements.InsertStatement
 import java.util.*
-
-/**
- * LogEntry records every single event that is synchronized across team workspaces in Stable
- */
-@Serializable
-data class LogEntry (
-    val id: String,
-    val teamId: String,
-    val path: String,
-    val actorId: String,
-    val eventType: String,
-    val createdAt: Long,
-    val confirmedAt: Long,
-)
 
 /**
  * LogEntryBuilder is used to build stable.log entries for each synchronization event

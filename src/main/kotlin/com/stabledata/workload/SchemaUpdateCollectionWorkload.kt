@@ -2,7 +2,7 @@ package com.stabledata.workload
 
 import com.stabledata.Ably
 import com.stabledata.dao.CollectionsTable
-import com.stabledata.dao.LogEntry
+import com.stabledata.model.LogEntry
 import com.stabledata.dao.LogsTable
 import com.stabledata.endpoint.WriteRequestContext
 import com.stabledata.model.Collection
