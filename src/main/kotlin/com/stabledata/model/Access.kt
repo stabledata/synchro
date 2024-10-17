@@ -1,24 +1,24 @@
-package com.stabledata.endpoint.io
+package com.stabledata.model
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 @Serializable
-data class AccessRequest (
+data class Access (
     val id: String,
     val type: String?,
     val role: String,
     val path: String
 ) {
     companion object {
-        fun fromJSON (json: String): AccessRequest {
+        fun fromJSON (json: String): Access {
             val jsonParser = Json {
                 ignoreUnknownKeys = true
                 isLenient = true
                 encodeDefaults = true
                 explicitNulls = false
             }
-            return jsonParser.decodeFromString<AccessRequest>(json)
+            return jsonParser.decodeFromString<Access>(json)
         }
     }
 }

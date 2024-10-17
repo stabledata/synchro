@@ -3,7 +3,7 @@ package com.stabledata.endpoint
 import com.stabledata.Ably
 import com.stabledata.dao.AccessTable
 import com.stabledata.dao.LogsTable
-import com.stabledata.endpoint.io.AccessRequest
+import com.stabledata.model.Access
 import com.stabledata.plugins.JWT_NAME
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
@@ -25,7 +25,7 @@ fun Application.configureAccessCreateRoute() {
                     "access/grant",
                     "access/manage"
                 ) { postData ->
-                    AccessRequest.fromJSON(postData)
+                    Access.fromJSON(postData)
                 } ?: return@post
 
                 // slightly borrowed, but not crazy use case issues in logs anyway

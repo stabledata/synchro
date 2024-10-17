@@ -2,7 +2,7 @@ package com.stabledata.dao
 
 import com.stabledata.SQLConflictException
 import com.stabledata.SQLNotFoundException
-import com.stabledata.endpoint.io.CollectionRequest
+import com.stabledata.model.Collection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -21,7 +21,7 @@ object CollectionsTable : Table("stable.collections") {
     val icon = text("icon").nullable()
     val description = text("description").nullable()
 
-    fun insertRowFromRequest(team: String, insert: CollectionRequest): UUID {
+    fun insertRowFromRequest(team: String, insert: Collection): UUID {
         return try {
             CollectionsTable.insert { row ->
                 row[id] = UUID.fromString(insert.id)
@@ -40,7 +40,7 @@ object CollectionsTable : Table("stable.collections") {
 
     }
 
-    fun updateAtPath(path: String, update: CollectionRequest): CollectionRequest {
+    fun updateAtPath(path: String, update: Collection): Collection {
         val numRecordsUpdated = CollectionsTable.update({
             CollectionsTable.path eq path
         }) { row ->

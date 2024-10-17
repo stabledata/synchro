@@ -4,7 +4,7 @@ import com.stabledata.Ably
 import com.stabledata.DatabaseOperations
 import com.stabledata.dao.CollectionsTable
 import com.stabledata.dao.LogsTable
-import com.stabledata.endpoint.io.CollectionRequest
+import com.stabledata.model.Collection
 import com.stabledata.plugins.JWT_NAME
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
@@ -25,7 +25,7 @@ fun Application.configureCreateCollectionRoute() {
                     "collection/create",
                     "collection/create"
                 ) { postData ->
-                    CollectionRequest.fromJSON(postData)
+                    Collection.fromJSON(postData)
                 } ?: return@post
 
                 logger.debug { "Create collection requested by ${user.id} with event id ${envelope.eventId}" }

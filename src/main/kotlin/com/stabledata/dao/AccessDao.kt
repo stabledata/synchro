@@ -1,6 +1,6 @@
 package com.stabledata.dao
 
-import com.stabledata.endpoint.io.AccessRequest
+import com.stabledata.model.Access
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -23,7 +23,7 @@ object AccessTable: Table("stable.access") {
     val role = text("role")
     val path = text("path")
 
-    fun insertFromRequest(type: String, team: String, record: AccessRequest) {
+    fun insertFromRequest(type: String, team: String, record: Access) {
         AccessTable.insert { row ->
             row[accessId] = UUID.fromString(record.id)
             row[kind] = type
