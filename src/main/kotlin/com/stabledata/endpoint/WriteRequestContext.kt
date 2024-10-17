@@ -14,7 +14,7 @@ data class WriteRequestContext<T>(
     val logEntry: LogEntryBuilder
 )
 
-suspend fun <T>PipelineContext<Unit, ApplicationCall>.contextualizeWriteRequest(
+suspend fun <T>PipelineContext<Unit, ApplicationCall>.contextualizeHTTPWriteRequest(
     operation: String,
     jsonSchema: String,
     bodyParser: suspend (body: String) -> T

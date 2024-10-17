@@ -4,9 +4,11 @@ import com.stabledata.SQLConflictException
 import com.stabledata.SQLNotFoundException
 import com.stabledata.model.Collection
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.update
 import java.util.*
 
 object CollectionsTable : Table("stable.collections") {
@@ -55,15 +57,6 @@ object CollectionsTable : Table("stable.collections") {
             throw SQLNotFoundException("Failed to update collection at path: $path")
         }
     }
-
-    fun getAtPath(path: String): ResultRow? {
-        return transaction {
-            CollectionsTable
-                .select{ CollectionsTable.path eq path }
-                .singleOrNull()
-        }
-    }
-
 
     fun deleteAtPath(path: String) {
         val numRecordsDeleted = CollectionsTable.deleteWhere {

@@ -21,7 +21,7 @@ fun Application.configureAccessCreateRoute() {
     routing {
         authenticate(JWT_NAME) {
             post("access/grant") {
-                val (access, user, envelope, logEntry) = contextualizeWriteRequest(
+                val (access, user, envelope, logEntry) = contextualizeHTTPWriteRequest(
                     "access/grant",
                     "access/manage"
                 ) { postData ->
