@@ -1,7 +1,7 @@
 package com.stabledata.dao
 
 import com.stabledata.SQLConflictException
-import com.stabledata.SQLNotFoundException
+import com.stabledata.NotFoundException
 import com.stabledata.model.Collection
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -54,7 +54,7 @@ object CollectionsTable : Table("stable.collections") {
         // we might want to think about that number logic
         // but, should never be more than one since we check for records at path before create
         return if (numRecordsUpdated == 1) { update } else {
-            throw SQLNotFoundException("Failed to update collection at path: $path")
+            throw NotFoundException("Failed to update collection at path: $path")
         }
     }
 
@@ -63,7 +63,7 @@ object CollectionsTable : Table("stable.collections") {
             CollectionsTable.path eq path
         }
         if (numRecordsDeleted != 1) {
-            throw SQLNotFoundException("Failed to delete collection at path: $path")
+            throw NotFoundException("Failed to delete collection at path: $path")
         }
     }
 }

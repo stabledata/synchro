@@ -32,6 +32,7 @@ fun main() {
         val grpcServer = NettyServerBuilder
             .forPort(grpcPort)
             .intercept(GrpcContextInterceptor())
+            .intercept(ExceptionHandlingInterceptor())
             .addService(GrpcService())
             .addService(SchemaService())
             .addService(ProtoReflectionService.newInstance())
