@@ -2,14 +2,10 @@ package com.stabledata
 
 import com.stabledata.context.UserCredentials
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNotNull
 
 class SchemaEndpointsTest {
     @Test
@@ -42,48 +38,46 @@ class SchemaEndpointsTest {
             setBody("""
                 {
                    "id":"payload"
-                }
             """.trimIndent())
         }
-        val body = Json.parseToJsonElement(response.bodyAsText()) as JsonArray
-        assertNotNull(body.size > 0)
+
         assertEquals(HttpStatusCode.BadRequest, response.status)
     }
 
-// mocking exposed is hard, the internet agrees, figure this out later
-// or just keep moving with integration tests.
+    // mocking exposed is hard, the internet agrees, figure this out later
+    // or just keep moving with integration tests.
 
-//    @Test
-//    fun `logs and returns server error when transactions fail`() = testApplication {
-//        val mockLogger = mockk<Logger>()
-//        application {
-//            testModuleWithDatabase(mockLogger)
-//        }
-//
-//        val mockTable = mockk<Table>()
-////        val mockTransaction = mockk<Transaction>()
-////        every { mockTransaction.exec<Boolean>(any()) } returns true
-//        every { mockTable.insert {} } throws SQLException("Blew up")
-//        every { mockLogger.info(any()) }
-//
-//        val id = Generators.timeBasedEpochGenerator().generate().toString();
-//        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
-//        val response = client.post("/schema/collection/create") {
-//            headers {
-//                append(HttpHeaders.Authorization, "Bearer $token")
-//                append(StableEventIdHeader, eventId())
-//            }
-//            contentType(ContentType.Application.Json)
-//            setBody("""
-//                {
-//                   "id":"$id",
-//                   "path":"foo"
-//                }
-//            """.trimIndent())
-//        }
-//        println(response.bodyAsText())
-//        assertEquals(HttpStatusCode.InternalServerError, response.status)
-//
-//    }
+    //    @Test
+    //    fun `logs and returns server error when transactions fail`() = testApplication {
+    //        val mockLogger = mockk<Logger>()
+    //        application {
+    //            testModuleWithDatabase(mockLogger)
+    //        }
+    //
+    //        val mockTable = mockk<Table>()
+    ////        val mockTransaction = mockk<Transaction>()
+    ////        every { mockTransaction.exec<Boolean>(any()) } returns true
+    //        every { mockTable.insert {} } throws SQLException("Blew up")
+    //        every { mockLogger.info(any()) }
+    //
+    //        val id = Generators.timeBasedEpochGenerator().generate().toString();
+    //        val token = generateJwtTokenWithCredentials(UserCredentials("ben@testing.com", "test"))
+    //        val response = client.post("/schema/collection/create") {
+    //            headers {
+    //                append(HttpHeaders.Authorization, "Bearer $token")
+    //                append(StableEventIdHeader, eventId())
+    //            }
+    //            contentType(ContentType.Application.Json)
+    //            setBody("""
+    //                {
+    //                   "id":"$id",
+    //                   "path":"foo"
+    //                }
+    //            """.trimIndent())
+    //        }
+    //        println(response.bodyAsText())
+    //        assertEquals(HttpStatusCode.InternalServerError, response.status)
+    //
+    //    }
 
 }

@@ -1,5 +1,7 @@
 package com.stabledata.context
 
+import com.stabledata.PermissionDenied
+import com.stabledata.UnauthorizedException
 import com.stabledata.dao.AccessTable
 import com.stabledata.envString
 import com.stabledata.getVerifier
@@ -67,15 +69,9 @@ fun Application.configureAuth () {
     }
 }
 
-data class PermissionsError(
-    val status: HttpStatusCode,
-    val message: String
-)
-
-suspend fun PipelineContext<Unit, ApplicationCall>.permissions(
-    operation: String,
-    block: suspend (PermissionsError?) -> Unit
-): UserCredentials? {
+fun PipelineContext<Unit, ApplicationCall>.permissions(
+    operation: String
+): UserCredentials {
     val userCredentials = call.principal<UserCredentials>()
     val logger = KotlinLogging.logger {}
     logger.debug { "Checking permissions for $userCredentials.id as ($userCredentials.role) on $operation" }
@@ -83,7 +79,6 @@ suspend fun PipelineContext<Unit, ApplicationCall>.permissions(
 
         // if we have an admin role, we can allow early
         if (userCredentials.role == Roles.Admin) {
-            block(null)
             return userCredentials
         }
 
@@ -112,24 +107,11 @@ suspend fun PipelineContext<Unit, ApplicationCall>.permissions(
         }
 
         if (!hasPermission) {
-            block(
-                PermissionsError(
-                    HttpStatusCode.Forbidden,
-                    "User lacks permission for $operation"
-                )
-            )
-            return null
+            throw PermissionDenied("User does not have permission to $operation")
         }
 
-        block(null)
         return userCredentials
     }
 
-    block(
-        PermissionsError(
-            HttpStatusCode.Unauthorized,
-            "Could not validate user credentials"
-        )
-    )
-    return null
+    throw UnauthorizedException("Could not validate user credentials")
 }

@@ -1,9 +1,7 @@
 package com.stabledata.context
 
 import com.stabledata.dao.LogEntryBuilder
-import io.ktor.http.*
 import io.ktor.server.application.*
-import io.ktor.server.response.*
 import io.ktor.util.pipeline.*
 
 data class WriteRequestContext<T>(
@@ -17,30 +15,10 @@ suspend fun <T>PipelineContext<Unit, ApplicationCall>.contextualizeHTTPWriteRequ
     operation: String,
     jsonSchema: String,
     bodyParser: suspend (body: String) -> T
-): WriteRequestContext<T>? {
-    val postData = validate("$jsonSchema.json") { isValid, errors ->
-        if (!isValid) {
-            call.respond(HttpStatusCode.BadRequest, errors)
-        }
-    } ?: return null
-
-    val userCredentials = permissions(operation) { error ->
-        if (error !== null) {
-            call.respond(error.status, error.message)
-        }
-    } ?: return null
-
-    val envelope = idempotent { existingRecord, envelope ->
-        existingRecord?.let {
-            call.respond(
-                HttpStatusCode.Conflict,
-                "Event id: ${existingRecord.id} was processed on ${existingRecord.confirmedAt}"
-            )
-            return@idempotent null
-        }
-        envelope
-    } ?: return null
-
+): WriteRequestContext<T> {
+    val userCredentials = permissions(operation)
+    val postData = validate("$jsonSchema.json")
+    val envelope = idempotencyCheck()
     val body = bodyParser(postData)
 
     val logEntry = LogEntryBuilder()

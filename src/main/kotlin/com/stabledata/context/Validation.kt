@@ -1,5 +1,6 @@
 package com.stabledata.context
 
+import com.stabledata.JSONSchemaValidationException
 import io.github.optimumcode.json.schema.JsonSchema
 import io.github.optimumcode.json.schema.ValidationError
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -41,11 +42,12 @@ fun validateJSONUsingSchema(schemaFileName: String, payload: String): Pair<Boole
  * @param schemaLocation
  */
 suspend fun PipelineContext<Unit, ApplicationCall>.validate(
-    schemaLocation: String,
-    block: suspend (Boolean, List<String>) -> Unit
-): String? {
+    schemaLocation: String
+): String {
     val body = call.receiveText()
     val (isValid, errors) = validateJSONUsingSchema(schemaLocation, body)
-    block(isValid, errors)
-    return if(isValid) { body } else { null }
+    if (!isValid) {
+        throw JSONSchemaValidationException(errors.joinToString(", "))
+    }
+    return body
 }
