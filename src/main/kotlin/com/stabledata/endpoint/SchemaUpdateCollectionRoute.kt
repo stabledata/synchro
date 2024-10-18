@@ -2,6 +2,7 @@ package com.stabledata.endpoint
 
 import com.stabledata.model.Collection
 import com.stabledata.context.JWT_NAME
+import com.stabledata.context.contextualizeHTTPWriteRequest
 import com.stabledata.workload.schemaUpdateCollectionWorkload
 import io.ktor.http.*
 import io.ktor.server.application.*

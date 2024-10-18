@@ -3,7 +3,7 @@ syntax = "proto3";
 package stable;
 
 // LogEntry message representing a logging event
-message LogEntry {
+message LogEntryMessage {
   string id = 1;
   string teamId = 2;
   string path = 3;

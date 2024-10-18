@@ -1,7 +1,7 @@
 package com.stabledata.model
 
+import com.stabledata.jsonParser
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 
 @Serializable
 data class Access (
@@ -12,12 +12,6 @@ data class Access (
 ) {
     companion object {
         fun fromJSON (json: String): Access {
-            val jsonParser = Json {
-                ignoreUnknownKeys = true
-                isLenient = true
-                encodeDefaults = true
-                explicitNulls = false
-            }
             return jsonParser.decodeFromString<Access>(json)
         }
     }

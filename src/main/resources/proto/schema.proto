@@ -4,16 +4,6 @@ import "log_entry.proto";
 
 package stable;
 
-message Collection {
-  string id = 1;
-  string path = 2;
-  string description = 3;
-  string icon = 4;
-  string label = 5;
-  string type = 6;
-}
-
-
 message CollectionRequest {
   string id = 1;
   string path = 2;
@@ -30,13 +20,8 @@ message DeleteCollectionRequest {
 
 
 // Define the service that handles collection management
-service CollectionService {
-  // Creates a new collection
-  rpc CreateCollection(CollectionRequest) returns (LogEntry);
-
-  // Updates an existing collection
-  rpc UpdateCollection(CollectionRequest) returns (LogEntry);
-
-  // Deletes a collection
-  rpc DeleteCollection(DeleteCollectionRequest) returns (LogEntry);
+service SchemaService {
+  rpc CreateCollection(CollectionRequest) returns (LogEntryMessage);
+  rpc UpdateCollection(CollectionRequest) returns (LogEntryMessage);
+  rpc DeleteCollection(DeleteCollectionRequest) returns (LogEntryMessage);
 }

@@ -1,7 +1,7 @@
 package com.stabledata.model
 
+import com.stabledata.jsonParser
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
 import stable.Schema
 
 @Serializable
@@ -15,12 +15,6 @@ data class Collection (
 ) {
     companion object {
         fun fromJSON (json: String): Collection {
-            val jsonParser = Json {
-                ignoreUnknownKeys = true // Allows parsing even if some fields are missing
-                isLenient = true // Allows more relaxed JSON parsing
-                encodeDefaults = true // Serialize default values too
-                explicitNulls = false // Omit fields that are null
-            }
             return jsonParser.decodeFromString<Collection>(json)
         }
 

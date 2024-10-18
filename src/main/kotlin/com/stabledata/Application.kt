@@ -1,11 +1,12 @@
 package com.stabledata
 
+import com.stabledata.context.configureAuth
+import com.stabledata.context.configureDocsRouting
 import com.stabledata.endpoint.configureApplicationRouting
 import com.stabledata.endpoint.configureChoresRouting
 import com.stabledata.grpc.GrpcContextInterceptor
 import com.stabledata.grpc.GrpcService
-import com.stabledata.context.configureAuth
-import com.stabledata.context.configureDocsRouting
+import com.stabledata.grpc.SchemaService
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
 import io.grpc.protobuf.services.ProtoReflectionService
@@ -35,6 +36,7 @@ fun main() {
             .forPort(grpcPort)
             .intercept(GrpcContextInterceptor())
             .addService(GrpcService())
+            .addService(SchemaService())
             .addService(ProtoReflectionService.newInstance())
             .build()
 

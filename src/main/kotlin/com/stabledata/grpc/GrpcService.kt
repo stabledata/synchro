@@ -2,12 +2,18 @@ package com.stabledata.grpc
 
 import com.stabledata.context.StableEventCreatedOnHeader
 import com.stabledata.context.StableEventIdHeader
+import com.stabledata.model.Collection
+import com.stabledata.model.LogEntry
+import com.stabledata.model.toMessage
 import com.stabledata.synchro.DataRequest
 import com.stabledata.synchro.DataResponse
 import com.stabledata.synchro.SynchroGrpcServiceGrpc
 import io.grpc.*
 import io.grpc.stub.StreamObserver
 import io.ktor.http.*
+import stable.LogEntry.LogEntryMessage
+import stable.Schema
+import stable.SchemaServiceGrpc
 
 
 internal class GrpcContextInterceptor : ServerInterceptor {
@@ -48,6 +54,27 @@ class GrpcService : SynchroGrpcServiceGrpc.SynchroGrpcServiceImplBase() {
             .setData("Data for id: ${request.id} w token in context: $token")
             .build()
 
+        responseObserver.onNext(response)
+        responseObserver.onCompleted()
+    }
+}
+
+class SchemaService : SchemaServiceGrpc.SchemaServiceImplBase() {
+    override fun createCollection(
+        request: Schema.CollectionRequest,
+        responseObserver: StreamObserver<LogEntryMessage>
+    ) {
+        val collection = Collection.fromMessage(request)
+        val tmp = LogEntry(
+            id = collection.id,
+            teamId = "bar",
+            path = collection.path,
+            actorId = "123",
+            eventType = "an event",
+            createdAt = 1232312342343,
+            confirmedAt = 234234324234
+        )
+        val response = tmp.toMessage()
         responseObserver.onNext(response)
         responseObserver.onCompleted()
     }
