@@ -65,12 +65,14 @@ class SchemaService : SchemaServiceGrpc.SchemaServiceImplBase() {
         responseObserver: StreamObserver<LogEntryMessage>
     ) {
         val collection = Collection.fromMessage(request)
+        val token = GrpcContextInterceptor.tokenContext.get(Context.current())
+
         val tmp = LogEntry(
             id = collection.id,
             teamId = "bar",
             path = collection.path,
             actorId = "123",
-            eventType = "an event",
+            eventType = "an event $token",
             createdAt = 1232312342343,
             confirmedAt = 234234324234
         )

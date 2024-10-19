@@ -1,8 +1,8 @@
 import com.google.gradle.osdetector.OsDetector
 
-val kotlin_version: String by project
-val logback_version: String by project
-val ktor_version: String by project
+val kotlinVersion: String by project
+val logbackVersion: String by project
+val ktorVersion: String by project
 
 plugins {
     kotlin("jvm") version "2.0.20"
@@ -148,11 +148,11 @@ dependencies {
     implementation("io.ktor:ktor-server-netty-jvm")
 
     implementation("io.ktor:ktor-server-content-negotiation:2.2.4")
-    implementation("io.ktor:ktor-server-openapi:$ktor_version")
-    implementation("io.ktor:ktor-server-cors:$ktor_version")
+    implementation("io.ktor:ktor-server-openapi:$ktorVersion")
+    implementation("io.ktor:ktor-server-cors:$ktorVersion")
     implementation("io.ktor:ktor-server-status-pages:2.0.0")
-    implementation("io.ktor:ktor-server-auth:$ktor_version")
-    implementation("io.ktor:ktor-server-auth-jwt:$ktor_version")
+    implementation("io.ktor:ktor-server-auth:$ktorVersion")
+    implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.9.0")
 
@@ -165,11 +165,11 @@ dependencies {
 
 
     // grpc
-    implementation("io.grpc:grpc-netty-shaded:1.42.1")
+    implementation("io.grpc:grpc-netty-shaded:1.48.1")
     // FIXME: this is still vulnerable!
     // https://github.com/protocolbuffers/protobuf/security/advisories/GHSA-735f-pc8j-v9w8
     implementation("io.grpc:grpc-protobuf:1.68.0")
-    implementation("io.grpc:grpc-stub:1.57.2")
+    implementation("io.grpc:grpc-stub:1.68.0")
     implementation("javax.annotation:javax.annotation-api:1.3.2")
     implementation("io.grpc:grpc-services:1.42.1")
 
@@ -197,12 +197,11 @@ dependencies {
 
     // tests
     testImplementation("io.ktor:ktor-server-test-host-jvm")
-    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlin_version")
-    testImplementation("io.ktor:ktor-server-test-host:$ktor_version")
+    testImplementation("org.jetbrains.kotlin:kotlin-test:$kotlinVersion")
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.kotest:kotest-runner-junit5:5.9.0")
     testImplementation("io.kotest:kotest-framework-engine:5.9.0")
     testImplementation("io.github.serpro69:kotlin-faker:1.16.0")
     testImplementation("io.mockk:mockk:1.13.4")
-    testImplementation("io.grpc:grpc-testing:1.66.0")
-
+    testImplementation("io.grpc:grpc-testing:1.68.0")
 }
