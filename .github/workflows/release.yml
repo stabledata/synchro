@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  release:
+    types:
+      - published
+
+jobs:
+  deploy-image-to:
+    name: "Deploy to CloudRun"
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: GCP Workload Identity Auth
+        id: auth
+        uses: google-github-actions/auth@v2
+        with:
+          workload_identity_provider: projects/791837997629/locations/global/workloadIdentityPools/github-actions-pool/providers/gha-id-pool-provider
+          service_account: github-actions@surface-420608.iam.gserviceaccount.com
+
+#      - name: "Auth to AR"
+#        run: gcloud auth configure-docker us-east4-docker.pkg.dev
+#
+#      - name: "Build Docker Image"
+#        run: |
+#          docker build . \
+#            -f Dockerfile \
+#            -t us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:${GITHUB_SHA::6} \
+#            -t us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:latest
+#
+#      - name: "Push Docker Image to AR"
+#        run: |
+#          docker push us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:${GITHUB_SHA::6}
+#          docker push us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:latest
+
+      - name: "gcloud run deploy"
+        run: |
+          echo "LOG_LEVEL: debug" >> env.yaml
+          echo "PROD: true" >> env.yaml
+          
+          gcloud run deploy synchro-kotlin-dev \
+          --image us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:latest \
+          --env-vars-file env.yaml \
+          --service-account github-actions@surface-420608.iam.gserviceaccount.com \
+          --update-secrets JWT_SECRET=JWT_SECRET:latest,ABLY_API_KEY=ABLY_API_KEY:latest \
+          --region us-west1 \
+          --allow-unauthenticated
+          --use-http2

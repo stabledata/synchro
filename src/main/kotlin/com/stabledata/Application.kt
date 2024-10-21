@@ -25,8 +25,9 @@ import org.jetbrains.exposed.sql.Database
 
 fun main() {
     runBlocking {
+        val isProd = envFlag("PROD")
         val port = envInt("PORT")
-        val devPort = envInt("GRPC_PORT")
+        val devPort = if (isProd) port else envInt("GRPC_PORT")
         val grpcPort = if (devPort > 0) devPort else port
 
         val grpcServer = NettyServerBuilder

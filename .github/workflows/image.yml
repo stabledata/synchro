@@ -38,3 +38,19 @@ jobs:
         run: |
           docker push us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:${GITHUB_SHA::6}
           docker push us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:latest
+
+
+  - name: "Deploy"
+      if:
+      run: |
+        echo "***DO NOT USE*** THESE VALUES IN PRODUCTION!"
+        echo "USE SECRETS MANAGER FOR JWT SIGNING KEY, OR A THIRD PARTY PROVIDER LIKE HASHICORP."
+        echo "DEBUG: surface:*" >> env.yaml
+        echo "SELF_RPC_HOST: https://surface-demo-app-5v6fvk5ela-uw.a.run.app/" >> env.yaml
+        echo "JWT_SECRET: sup4h.secr1t.jwt.🔑" >> env.yaml
+        gcloud run deploy surface-demo-app \
+          --image "${{ secrets.GCP_AR_PATH }}/app:${GITHUB_SHA::6}" \
+          --env-vars-file env.yaml \
+          --service-account ${{ secrets.GCP_APP_SERVICE_ACCOUNT }} \
+          --region us-west1 \
+          --allow-unauthenticated

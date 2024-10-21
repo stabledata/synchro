@@ -2,7 +2,7 @@
 
 ### The backend for [Stable](https://makeitstable.com). 
 
-The best way to think about this service is as both a schema and data management API built on Postgres. 
+The best way to think about this service is as both a schema and data management API built on [Exposed](https://github.com/JetBrains/Exposed). 
 
 > Imagine standardized user-friendly messages for validation, formatting, object relationships, custom views, reporting, searching, database chores, performance optimizations, computations and more &mdash; all interfaced with easy to grok endpoints.
 
@@ -13,11 +13,11 @@ Running `./gradlew migrate` or hitting the `/migrate` endpoint creates an additi
 
 ## Architecture
 
-Synchro is a **purposefully dead simple ktor web service** with HTTP endpoints documented in OpenAPI however, there are a few noteworthy features:
+Synchro is a **purposefully dead simple ktor web service** with HTTP and gRPC endpoints however, there are a few noteworthy features:
 
 ### Writes are always idempotent
 
-All write requests, which are entirely POST (yes, even the other "verb" operations) are enveloped with a required `x-stable-event-id` header which serves as an idempotency guarantee.
+All write requests, which are entirely HTTP POST or gRPC are enveloped with a required `x-stable-event-id` header which serves as an idempotency guarantee.
 
 As part of request contextualization, the logs table is checked to ensure events have not been processed.
 
