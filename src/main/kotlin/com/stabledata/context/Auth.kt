@@ -3,7 +3,6 @@ package com.stabledata.context
 import com.stabledata.PermissionDenied
 import com.stabledata.UnauthorizedException
 import com.stabledata.dao.AccessTable
-import com.stabledata.envString
 import com.stabledata.getVerifier
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
@@ -43,8 +42,10 @@ data class UserCredentials (
             val id = credential.payload.getClaim("id")
             val missingRequiredClaims = email.isNull || id.isNull || team.isNull
 
-            val credentialsMatchDeployEnv = team.asString().equals(envString("STABLE_TEAM"))
-            return credentialsMatchDeployEnv && !missingRequiredClaims
+            // For dedicated team deployments in the future we can/should re-enable this.
+            // val credentialsMatchDeployEnv = team.asString().equals(envString("STABLE_TEAM"))
+            // return credentialsMatchDeployEnv && !missingRequiredClaims
+            return !missingRequiredClaims
         }
     }
 
