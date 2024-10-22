@@ -5,6 +5,7 @@ import com.stabledata.grpc.GrpcContextInterceptor
 import io.grpc.*
 import io.grpc.inprocess.InProcessChannelBuilder
 import io.grpc.inprocess.InProcessServerBuilder
+import io.grpc.stub.AbstractStub
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
@@ -55,16 +56,19 @@ class MetadataInterceptor(private val metadata: Metadata) : ClientInterceptor {
     }
 }
 
-fun <T : Any> grpcTest(
-    serviceImpl: BindableService,  // The actual gRPC service implementation
-    stubCreator: (ManagedChannel) -> T,  // Function to create the service stub
-    test: (stub: T) -> Unit  // The test function, receiving the stub
+fun <T : AbstractStub<T>> grpcTest(
+    serviceImpl: BindableService,
+    stubCreator: (ManagedChannel) -> T,
+    token: String,
+    eventId: String = uuidString(),
+    test: (stub: T) -> Unit
 ) {
     val serverName = InProcessServerBuilder.generateName()
 
     val server = InProcessServerBuilder
         .forName(serverName)
         .directExecutor()
+        .intercept(ExceptionHandlingInterceptor())
         .intercept(GrpcContextInterceptor())
         .addService(serviceImpl)
         .build()
@@ -76,8 +80,21 @@ fun <T : Any> grpcTest(
         .build()
 
     try {
-        val stub = stubCreator(channel)
-        test(stub)
+        val metadata = Metadata().apply {
+            put(
+                Metadata.Key.of(HttpHeaders.Authorization, Metadata.ASCII_STRING_MARSHALLER),
+                "Bearer $token"
+            )
+            put(
+                Metadata.Key.of(StableEventIdHeader, Metadata.ASCII_STRING_MARSHALLER),
+                eventId
+            )
+        }
+
+        val callOptionsStub = stubCreator(channel)
+            .withInterceptors(MetadataInterceptor(metadata))
+
+        test(callOptionsStub)
     } finally {
         channel.shutdown()
         server.shutdown()

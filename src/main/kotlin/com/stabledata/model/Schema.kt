@@ -1,5 +1,6 @@
 package com.stabledata.model
 
+import com.stabledata.BadRequestException
 import com.stabledata.jsonParser
 import kotlinx.serialization.Serializable
 import stable.Schema
@@ -19,6 +20,12 @@ data class Collection (
         }
 
         fun fromMessage(message: Schema.CollectionRequest): Collection {
+            if (message.id.isNullOrEmpty()) {
+                throw BadRequestException("Collection id is required")
+            }
+            if (message.path.isNullOrEmpty()) {
+                throw BadRequestException("Collection path is required")
+            }
             return Collection(
                 id = message.id,
                 path = message.path,

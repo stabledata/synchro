@@ -1,36 +1,91 @@
 package com.stabledata
 
-import com.stabledata.context.StableEventIdHeader
 import com.stabledata.grpc.SchemaService
-import io.grpc.Metadata
+import io.grpc.Status
+import io.grpc.StatusRuntimeException
 import io.kotest.core.spec.style.WordSpec
-import io.ktor.http.*
+import io.kotest.matchers.shouldBe
+import org.jetbrains.exposed.sql.Database
 import stable.Schema
 import stable.SchemaServiceGrpc
+import kotlin.test.fail
 
 class SchemaGrpcTest:WordSpec({
-    "returns unauthorized" should {
-        grpcTest(
-            serviceImpl = SchemaService(),
-            stubCreator = { channel -> SchemaServiceGrpc.newBlockingStub(channel) }
-        ) { stub ->
+    "schema grpc endpoints" should {
+        "return unauthorized message without invalid token" {
+            grpcTest(
+                serviceImpl = SchemaService(),
+                stubCreator = { channel -> SchemaServiceGrpc.newBlockingStub(channel) },
+                "bad token",
 
-            val metadata = Metadata().apply {
-                put(Metadata.Key.of(HttpHeaders.Authorization, Metadata.ASCII_STRING_MARSHALLER), "Bearer some-token")
-                put(Metadata.Key.of(StableEventIdHeader, Metadata.ASCII_STRING_MARSHALLER), "12345")
+            ) { stub ->
+                val request = Schema.CollectionRequest.newBuilder()
+                    .setId("collection-123")
+                    .setPath("/example/path")
+                    .build()
+
+                try {
+                    stub.createCollection(request)
+                    fail("Expected INVALID_ARGUMENT exception")
+                } catch (e: StatusRuntimeException) {
+                    e.status.code shouldBe Status.INVALID_ARGUMENT.code
+                }
             }
-
-            // Create a call options object to pass the metadata interceptor
-            val callOptions = stub.withInterceptors(MetadataInterceptor(metadata))
-
-            val request = Schema.CollectionRequest.newBuilder()
-                .setId("collection-123")
-                .setPath("/example/path")
-                .build()
-
-            val response = callOptions.createCollection(request)
-            assert(response != null)
         }
 
+        "return bad request with invalid collection" {
+            grpcTest(
+                serviceImpl = SchemaService(),
+                stubCreator = { channel -> SchemaServiceGrpc.newBlockingStub(channel) },
+                generateTokenForTesting(),
+
+                ) { stub ->
+                val request = Schema.CollectionRequest.newBuilder()
+                    // .setId("collection-123") missing
+                    .setPath("/example/path")
+                    .build()
+
+                try {
+                    stub.createCollection(request)
+                    fail("Expected INVALID_ARGUMENT exception")
+                } catch (e: StatusRuntimeException) {
+                    e.status.code shouldBe Status.INVALID_ARGUMENT.code
+                }
+
+                val requestWithoutPath = Schema.CollectionRequest.newBuilder()
+                    .setId("collection-123")
+                    // .setPath("/example/path")
+                    .build()
+
+                try {
+                    stub.createCollection(requestWithoutPath)
+                    fail("Expected INVALID_ARGUMENT exception")
+                } catch (e: StatusRuntimeException) {
+                    e.status.code shouldBe Status.INVALID_ARGUMENT.code
+                }
+            }
+        }
+
+        "return unauthorized for non admin token" {
+            Database.connect(hikari())
+            grpcTest(
+                serviceImpl = SchemaService(),
+                stubCreator = { channel -> SchemaServiceGrpc.newBlockingStub(channel) },
+                generateTokenForTesting(),
+
+                ) { stub ->
+                val request = Schema.CollectionRequest.newBuilder()
+                    .setId("collection-123")
+                    .setPath("/example/path")
+                    .build()
+
+                try {
+                    stub.createCollection(request)
+                    fail("Expected UNAUTHENTICATED exception")
+                } catch (e: StatusRuntimeException) {
+                    e.status.code shouldBe Status.UNAUTHENTICATED.code
+                }
+            }
+        }
     }
 })

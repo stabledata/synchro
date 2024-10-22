@@ -10,6 +10,7 @@ import io.ktor.server.response.*
 class UnauthorizedException(message: String) : Exception(message)
 class PermissionDenied(message: String) : Exception(message)
 class JSONSchemaValidationException(message: String) : Exception(message)
+class BadRequestException(message: String) : Exception(message)
 class EventAlreadyProcessedException(message: String) : Exception(message)
 class NotFoundException(message: String) : Exception(message)
 class SQLConflictException(message: String) : Exception(message)
@@ -32,6 +33,7 @@ fun logAndReturnMappedError(err: Throwable): Pair<ErrorStatus, String> {
             ErrorStatus(HttpStatusCode.Forbidden, Status.UNAUTHENTICATED),
             err.localizedMessage
         )
+        is BadRequestException,
         is JSONSchemaValidationException -> Pair(
             ErrorStatus(HttpStatusCode.BadRequest, Status.INVALID_ARGUMENT),
             err.localizedMessage

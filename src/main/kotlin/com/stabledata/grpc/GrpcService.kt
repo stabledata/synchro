@@ -1,7 +1,10 @@
 package com.stabledata.grpc
 
+import com.stabledata.Operations
 import com.stabledata.context.StableEventCreatedOnHeader
 import com.stabledata.context.StableEventIdHeader
+import com.stabledata.context.UserCredentials
+import com.stabledata.context.credentialsCanPerformOperation
 import com.stabledata.model.Collection
 import com.stabledata.model.LogEntry
 import com.stabledata.model.toMessage
@@ -64,17 +67,26 @@ class SchemaService : SchemaServiceGrpc.SchemaServiceImplBase() {
         request: Schema.CollectionRequest,
         responseObserver: StreamObserver<LogEntryMessage>
     ) {
+
+        val token = GrpcContextInterceptor.tokenContext.get(Context.current()).toString()
+        val credentials = credentialsCanPerformOperation(
+            UserCredentials.fromRawToken(token),
+            Operations.Schema.CREATE_COLLECTION
+        )
         val collection = Collection.fromMessage(request)
-        val token = GrpcContextInterceptor.tokenContext.get(Context.current())
+//        val envelope = Envelope(
+//            GrpcContextInterceptor.eventIdContext.get(Context.current()).toString(),
+//            GrpcContextInterceptor.eventCreatedAtContext.get(Context.current()).toString().toLongOrNull() ?: System.currentTimeMillis()
+//        )
 
         val tmp = LogEntry(
             id = collection.id,
-            teamId = "bar",
+            teamId =  credentials.team,
             path = collection.path,
             actorId = "123",
             eventType = "an event $token",
             createdAt = 1232312342343,
-            confirmedAt = 234234324234
+            confirmedAt = 234234324234,
         )
         val response = tmp.toMessage()
         responseObserver.onNext(response)

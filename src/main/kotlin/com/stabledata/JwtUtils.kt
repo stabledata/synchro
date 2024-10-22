@@ -3,11 +3,10 @@ package com.stabledata
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import com.auth0.jwt.exceptions.JWTVerificationException
-import com.auth0.jwt.interfaces.DecodedJWT
 import com.stabledata.context.Roles
 import com.stabledata.context.UserCredentials
 import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.server.auth.jwt.*
 import java.util.*
 
 fun getStableJwtSecret(): String {
@@ -49,14 +48,15 @@ fun getVerifier (): JWTVerifier {
         .build()
 }
 
-fun verifyToken(token: String): DecodedJWT? {
+fun credentialFromToken(token: String): JWTCredential {
     val logger = KotlinLogging.logger {}
-    return try {
-        val verifier = getVerifier()
-        val decodedJWT: DecodedJWT = verifier.verify(token)
-        decodedJWT
-    } catch (exception: JWTVerificationException) {
-        logger.error {"Invalid token: ${exception.message}" }
-        null
+    val verifier = getVerifier()
+    try {
+        val decodedJWT = verifier.verify(token)
+        decodedJWT.claims.mapValues { it.value.asString() }
+        return JWTCredential(decodedJWT)
+    } catch (e: Exception) {
+        logger.error { "Failed to verify JWT token: $token " }
+        throw BadRequestException("Request requires a valid bearer token")
     }
 }

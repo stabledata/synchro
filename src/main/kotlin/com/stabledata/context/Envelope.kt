@@ -30,11 +30,18 @@ fun PipelineContext<Unit, ApplicationCall>.idempotencyCheck(): Envelope {
     val eventId = call.request.headers[StableEventIdHeader]
     val createdAt = call.request.headers[StableEventCreatedOnHeader]
 
+    return idempotency(
+        eventId,
+        createdAt?.toLongOrNull() ?: System.currentTimeMillis()
+    )
+}
+
+fun idempotency(eventId: String?, createdAt: Long): Envelope {
+
     val envelope = Envelope(
         eventId = eventId ?:
-            Generators.timeBasedEpochGenerator().generate().toString(),
-        createdAt = createdAt?.toLong() ?:
-            System.currentTimeMillis()
+        Generators.timeBasedEpochGenerator().generate().toString(),
+        createdAt = createdAt
     )
 
     // if there is no event id in the header, we can short circuit false
