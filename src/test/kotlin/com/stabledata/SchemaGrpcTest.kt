@@ -12,6 +12,9 @@ import kotlin.test.fail
 
 class SchemaGrpcTest:WordSpec({
     "schema grpc endpoints" should {
+
+        Database.connect(hikari())
+
         "return unauthorized message without invalid token" {
             grpcTest(
                 serviceImpl = SchemaService(),
@@ -37,7 +40,7 @@ class SchemaGrpcTest:WordSpec({
             grpcTest(
                 serviceImpl = SchemaService(),
                 stubCreator = { channel -> SchemaServiceGrpc.newBlockingStub(channel) },
-                generateTokenForTesting(),
+                generateTokenForTesting("admin"),
 
                 ) { stub ->
                 val request = Schema.CollectionRequest.newBuilder()
@@ -67,7 +70,6 @@ class SchemaGrpcTest:WordSpec({
         }
 
         "return unauthorized for non admin token" {
-            Database.connect(hikari())
             grpcTest(
                 serviceImpl = SchemaService(),
                 stubCreator = { channel -> SchemaServiceGrpc.newBlockingStub(channel) },
