@@ -17,8 +17,8 @@ import kotlinx.serialization.Serializable
 const val JWT_NAME = "stable-jwt-auth"
 const val JWT_REALM = "stable-jwt-realm"
 object Roles {
-    val Admin = "admin"
-    val Default = "member"
+    const val ADMIN = "admin"
+    const val MEMBER = "member"
 }
 @Serializable
 data class UserCredentials (
@@ -93,13 +93,13 @@ fun PipelineContext<Unit, ApplicationCall>.permissions(
 }
 
 fun credentialsCanPerformOperation(userCredentials: UserCredentials, operation: String): UserCredentials {
-    if (userCredentials.role == Roles.Admin) {
+    if (userCredentials.role == Roles.ADMIN) {
         return userCredentials
     }
 
     // otherwise, find matching access rules
     val roleToCheck = if (userCredentials.role.isNullOrEmpty())
-        Roles.Default
+        Roles.MEMBER
     else
         userCredentials.role
 

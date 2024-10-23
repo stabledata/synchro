@@ -15,7 +15,7 @@ class AccessIntegrationTest: WordSpec({
         val ruleDeleteEventId = uuidString()
         val ruleId = uuidString()
         val tokenForCustomRole = generateTokenForTesting("test.role")
-        val adminToken = generateTokenForTesting(Roles.Admin)
+        val adminToken = generateTokenForTesting(Roles.ADMIN)
 
         "should deny test role collection create" {
             val faker = Faker()

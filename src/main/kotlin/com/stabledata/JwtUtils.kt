@@ -26,7 +26,7 @@ fun getStableJwtSecret(): String {
  }
 
 fun generateTokenForTesting(
-    withRole: String? = Roles.Default,
+    withRole: String? = Roles.MEMBER,
     withTeam: String? = "test",
     withEmail: String? = "test@makeitstable.com"
 ): String {
