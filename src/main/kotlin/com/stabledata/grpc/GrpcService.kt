@@ -1,8 +1,8 @@
 package com.stabledata.grpc
 
-import com.stabledata.Operations
-import com.stabledata.context.*
-import com.stabledata.dao.LogEntryBuilder
+import com.stabledata.context.StableEventCreatedOnHeader
+import com.stabledata.context.StableEventIdHeader
+import com.stabledata.context.WriteRequestContext
 import com.stabledata.model.Collection
 import com.stabledata.model.toMessage
 import com.stabledata.synchro.DataRequest
@@ -65,32 +65,9 @@ class SchemaService : SchemaServiceGrpc.SchemaServiceImplBase() {
         request: Schema.CollectionRequest,
         responseObserver: StreamObserver<LogEntryMessage>
     ) {
-
-        val token = GrpcContextInterceptor.tokenContext.get(Context.current()).toString()
-        val userCredentials = credentialsCanPerformOperation(
-            UserCredentials.fromRawToken(token),
-            Operations.Schema.CREATE_COLLECTION
-        )
-        val collection = Collection.fromMessage(request)
-        val envelope = Envelope(
-            GrpcContextInterceptor.eventIdContext.get(Context.current()).toString(),
-            GrpcContextInterceptor.eventCreatedAtContext.get(Context.current()).toString().toLongOrNull() ?: System.currentTimeMillis()
-        )
-
-        val logEntry = LogEntryBuilder()
-            .eventType(Operations.Schema.CREATE_COLLECTION)
-            .actorId(userCredentials.id)
-            .teamId(userCredentials.team)
-            .id(envelope.eventId)
-            .createdAt(envelope.createdAt)
-
-        val ctx = WriteRequestContext(
-            collection,
-            userCredentials = userCredentials,
-            envelope = envelope,
-            logEntry = logEntry
-        )
-
+        val ctx = WriteRequestContext.fromGrpcContext {
+            Collection.fromMessage(request)
+        }
         val result = createCollectionWorkload(ctx)
         val response = result.toMessage()
         responseObserver.onNext(response)

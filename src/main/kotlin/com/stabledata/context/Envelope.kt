@@ -1,9 +1,11 @@
 
 package com.stabledata.context
 
-import com.fasterxml.uuid.Generators
 import com.stabledata.EventAlreadyProcessedException
 import com.stabledata.dao.LogsTable
+import com.stabledata.grpc.GrpcContextInterceptor
+import com.stabledata.uuidString
+import io.grpc.Context
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -11,7 +13,24 @@ import org.jetbrains.exposed.sql.transactions.transaction
 data class Envelope(
     val eventId: String,
     val createdAt: Long
-)
+) {
+    companion object {
+        fun fromGrpcContext(): Envelope {
+            val eventId: Any? = GrpcContextInterceptor.eventIdContext.get(Context.current())
+            val eventIdString: String = eventId?.toString() ?: uuidString()
+            val eventCreatedAt: Long = GrpcContextInterceptor.eventCreatedAtContext
+                .get(Context.current())
+                ?.toString()
+                ?.toLongOrNull() ?: System.currentTimeMillis()
+
+            return idempotency(
+                eventIdString,  // Use eventIdString here
+                eventCreatedAt
+            )
+        }
+    }
+}
+
 
 const val StableEventIdHeader = "x-stable-event-id"
 const val StableEventCreatedOnHeader = "x-stable-event-created-on"
@@ -39,13 +58,10 @@ fun PipelineContext<Unit, ApplicationCall>.idempotencyCheck(): Envelope {
 fun idempotency(eventId: String?, createdAt: Long): Envelope {
 
     val envelope = Envelope(
-        eventId = eventId ?:
-        Generators.timeBasedEpochGenerator().generate().toString(),
+        eventId = eventId ?: uuidString(),
         createdAt = createdAt
     )
 
-    // if there is no event id in the header, we can short circuit false
-    // to the block to avoid lookup overhead
     if (eventId == null) {
         return envelope
     }
