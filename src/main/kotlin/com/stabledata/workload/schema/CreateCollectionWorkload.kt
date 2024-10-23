@@ -1,16 +1,16 @@
-package com.stabledata.workload
+package com.stabledata.workload.schema
 
 import com.stabledata.Ably
 import com.stabledata.DatabaseOperations
-import com.stabledata.dao.CollectionsTable
-import com.stabledata.model.LogEntry
-import com.stabledata.dao.LogsTable
 import com.stabledata.context.WriteRequestContext
+import com.stabledata.dao.CollectionsTable
+import com.stabledata.dao.LogsTable
 import com.stabledata.model.Collection
+import com.stabledata.model.LogEntry
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.exposed.sql.transactions.transaction
 
-fun schemaCreateCollectionWorkload(
+fun createCollectionWorkload(
     writeRequestContext: WriteRequestContext<Collection>
 ): LogEntry {
 

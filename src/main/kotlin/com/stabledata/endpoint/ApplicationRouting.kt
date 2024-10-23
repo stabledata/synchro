@@ -7,8 +7,7 @@ fun Application.configureApplicationRouting() {
     configureAccessDeleteRoute()
 
     // schema
-    configureCreateCollectionRoute()
-    configureUpdateCollectionRoute()
-    configureDeleteCollectionRoute()
+    configureSchemaRoutes()
+
 
 }
