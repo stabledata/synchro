@@ -1,16 +1,14 @@
 package com.stabledata.grpc
 
 import com.stabledata.Operations
-import com.stabledata.context.StableEventCreatedOnHeader
-import com.stabledata.context.StableEventIdHeader
-import com.stabledata.context.UserCredentials
-import com.stabledata.context.credentialsCanPerformOperation
+import com.stabledata.context.*
+import com.stabledata.dao.LogEntryBuilder
 import com.stabledata.model.Collection
-import com.stabledata.model.LogEntry
 import com.stabledata.model.toMessage
 import com.stabledata.synchro.DataRequest
 import com.stabledata.synchro.DataResponse
 import com.stabledata.synchro.SynchroGrpcServiceGrpc
+import com.stabledata.workload.schema.createCollectionWorkload
 import io.grpc.*
 import io.grpc.stub.StreamObserver
 import io.ktor.http.*
@@ -69,26 +67,32 @@ class SchemaService : SchemaServiceGrpc.SchemaServiceImplBase() {
     ) {
 
         val token = GrpcContextInterceptor.tokenContext.get(Context.current()).toString()
-        val credentials = credentialsCanPerformOperation(
+        val userCredentials = credentialsCanPerformOperation(
             UserCredentials.fromRawToken(token),
             Operations.Schema.CREATE_COLLECTION
         )
         val collection = Collection.fromMessage(request)
-//        val envelope = Envelope(
-//            GrpcContextInterceptor.eventIdContext.get(Context.current()).toString(),
-//            GrpcContextInterceptor.eventCreatedAtContext.get(Context.current()).toString().toLongOrNull() ?: System.currentTimeMillis()
-//        )
-
-        val tmp = LogEntry(
-            id = collection.id,
-            teamId =  credentials.team,
-            path = collection.path,
-            actorId = "123",
-            eventType = "an event $token",
-            createdAt = 1232312342343,
-            confirmedAt = 234234324234,
+        val envelope = Envelope(
+            GrpcContextInterceptor.eventIdContext.get(Context.current()).toString(),
+            GrpcContextInterceptor.eventCreatedAtContext.get(Context.current()).toString().toLongOrNull() ?: System.currentTimeMillis()
         )
-        val response = tmp.toMessage()
+
+        val logEntry = LogEntryBuilder()
+            .eventType(Operations.Schema.CREATE_COLLECTION)
+            .actorId(userCredentials.id)
+            .teamId(userCredentials.team)
+            .id(envelope.eventId)
+            .createdAt(envelope.createdAt)
+
+        val ctx = WriteRequestContext(
+            collection,
+            userCredentials = userCredentials,
+            envelope = envelope,
+            logEntry = logEntry
+        )
+
+        val result = createCollectionWorkload(ctx)
+        val response = result.toMessage()
         responseObserver.onNext(response)
         responseObserver.onCompleted()
     }
