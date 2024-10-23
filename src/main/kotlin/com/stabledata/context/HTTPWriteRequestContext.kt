@@ -10,7 +10,6 @@ data class WriteRequestContext<T>(
     val envelope: Envelope,
     val logEntry: LogEntryBuilder
 )
-
 suspend fun <T>PipelineContext<Unit, ApplicationCall>.contextualizeHTTPWriteRequest(
     operation: String,
     jsonSchema: String,

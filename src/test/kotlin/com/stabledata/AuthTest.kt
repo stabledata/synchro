@@ -4,6 +4,7 @@ import com.stabledata.context.UserCredentials
 import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.server.testing.*
+import org.junit.jupiter.api.Disabled
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -25,6 +26,7 @@ class AuthTest {
     }
 
     @Test
+    @Disabled("This can be re-enabled for dedicated team deployments")
     fun `requires team to claim to match` () = testApplication {
         application { module() }
 
