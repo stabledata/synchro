@@ -3,7 +3,6 @@ package com.stabledata.context
 
 import com.stabledata.EventAlreadyProcessedException
 import com.stabledata.dao.LogsTable
-import com.stabledata.grpc.GrpcContextInterceptor
 import com.stabledata.uuidString
 import io.grpc.Context
 import io.ktor.server.application.*

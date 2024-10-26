@@ -1,7 +1,7 @@
 package com.stabledata
 
 import com.stabledata.context.StableEventIdHeader
-import com.stabledata.grpc.GrpcContextInterceptor
+import com.stabledata.context.GrpcContextInterceptor
 import io.grpc.*
 import io.grpc.inprocess.InProcessChannelBuilder
 import io.grpc.inprocess.InProcessServerBuilder

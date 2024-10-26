@@ -2,7 +2,6 @@ package com.stabledata.context
 
 import com.stabledata.Operations
 import com.stabledata.dao.LogEntryBuilder
-import com.stabledata.grpc.GrpcContextInterceptor
 import io.grpc.Context
 import io.ktor.server.application.*
 import io.ktor.util.pipeline.*
