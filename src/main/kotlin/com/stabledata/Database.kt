@@ -10,14 +10,18 @@ val DB_LOCK = Any()
 @Volatile
 var hikariDS: HikariDataSource? = null
 fun hikari (): HikariDataSource {
+    val hikariConfig = if (envFlag("PROD")) HikariConfig().apply {
+        jdbcUrl = envString("NEON_FULL_JDBC_URL")
+    } else HikariConfig().apply {
+        driverClassName = "org.postgresql.Driver"
+        jdbcUrl = envString("STABLE_JDBC_URL")
+        username = envString("STABLE_DB_USER")
+        password = envString("STABLE_DB_PASSWORD")
+        maximumPoolSize = envInt("STABLE_DB_MAX_CONNECTIONS")
+    }
+
     return hikariDS ?: synchronized(DB_LOCK) {
-        hikariDS ?: HikariDataSource(HikariConfig().apply {
-            driverClassName = "org.postgresql.Driver"
-            jdbcUrl = envString("STABLE_JDBC_URL")
-            username = envString("STABLE_DB_USER")
-            password = envString("STABLE_DB_PASSWORD")
-            maximumPoolSize = envInt("STABLE_DB_MAX_CONNECTIONS")
-        }).also { hikariDS = it }
+        hikariDS ?: HikariDataSource(hikariConfig).also { hikariDS = it }
     }
 }
 

@@ -20,5 +20,14 @@ services:
                -c log_connections=on
                -c log_disconnections=on
                -c log_line_prefix='%t [%p]: [%l-1] user=%u,db=%d,app=%a,client=%h'
+  synchro-kotlin:
+    depends_on:
+      - postgresdb
+    image: stable-synchro-kotlin:latest
+    env_file:
+      - env.prod.yaml
+    ports:
+      - "8003:8003"
+
 volumes:
   pg-volume:

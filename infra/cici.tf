@@ -1,6 +1,3 @@
-provider "google" {
-  project = "surface-420608"
-}
 
 resource "google_iam_workload_identity_pool" "github_actions_pool" {
   workload_identity_pool_id = "github-actions-pool"

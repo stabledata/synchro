@@ -41,18 +41,18 @@ jobs:
 
       - name: "gcloud run deploy"
         run: |
-          echo "PROD: true" >> env.yaml
-          echo "LOG_LEVEL: debug" >> env.yaml
-          echo "ENABLE_TOKEN_ENDPOINT: true" >> env.yaml 
-          echo "STABLE_DB_USER: stable_owner" >> env.yaml 
-          echo "STABLE_JDBC_URL: jdbc:postgresql://ep-white-hat-a42e58hr-pooler.us-east-1.aws.neon.tech/synchro-shared?sslmode=require" >> env.yaml 
-          echo "STABLE_DB_MAX_CONNECTIONS: 10" >> env.yaml 
+          echo "PROD: true" >> env.prod.yaml
+          echo "LOG_LEVEL: debug" >> env.prod.yaml
+          echo "ENABLE_TOKEN_ENDPOINT: true" >> env.prod.yaml 
+          echo "STABLE_DB_USER: stable_owner" >> env.prod.yaml 
+          echo "STABLE_JDBC_URL: jdbc:postgresql://ep-white-hat-a42e58hr-pooler.us-east-1.aws.neon.tech/synchro-shared?sslmode=require" >> env.prod.yaml 
+          echo "STABLE_DB_MAX_CONNECTIONS: 10" >> env.prod.yaml 
           
           gcloud run deploy synchro-kotlin-shared \
             --image us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:latest \
             --env-vars-file env.yaml \
-            --service-account github-actions@surface-420608.iam.gserviceaccount.com \
-            --update-secrets JWT_SECRET=JWT_SECRET:latest,ABLY_API_KEY=ABLY_API_KEY:latest,STABLE_DB_USER=STABLE_DB_USER:latest \
-            --region us-west1 \
+            --service-account app-synchro@surface-420608.iam.gserviceaccount.com \
+            --update-secrets JWT_SECRET=JWT_SECRET:latest,ABLY_API_KEY=ABLY_API_KEY:latest,STABLE_DB_PASSWORD=STABLE_DB_PASSWORD:latest \
+            --region us-east4 \
             --allow-unauthenticated \
             --use-http2

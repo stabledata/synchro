@@ -1,11 +1,15 @@
 package com.stabledata
 
+import ch.qos.logback.classic.Level
+import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.LoggerContext
+import com.stabledata.context.GrpcContextInterceptor
 import com.stabledata.context.configureAuth
 import com.stabledata.context.configureDocsRouting
 import com.stabledata.endpoint.configureApplicationRouting
 import com.stabledata.endpoint.configureChoresRouting
-import com.stabledata.context.GrpcContextInterceptor
 import com.stabledata.grpc.SchemaService
+import io.github.oshai.kotlinlogging.KotlinLogging
 import io.grpc.netty.shaded.io.grpc.netty.NettyServerBuilder
 import io.grpc.protobuf.services.ProtoReflectionService
 import io.ktor.http.*
@@ -21,13 +25,22 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.sql.Database
+import org.slf4j.LoggerFactory
 
 fun main() {
+
+    val envLogLevel = System.getenv("LOG_LEVEL") ?: "INFO"
+    val context = LoggerFactory.getILoggerFactory() as LoggerContext
+    val rootLogger = context.getLogger(Logger.ROOT_LOGGER_NAME)
+    rootLogger.level = Level.toLevel(envLogLevel, Level.INFO)
+
+    val logger = KotlinLogging.logger {}
+
     runBlocking {
-        val isProd = envFlag("PROD")
+
+        // Allegedly, cloud run can multiplex requests into the same port
         val port = envInt("PORT")
-        val devPort = if (isProd) port else envInt("GRPC_PORT")
-        val grpcPort = if (devPort > 0) devPort else port
+        val grpcPort = envIntOptional("GRPC_PORT") ?: port
 
         val grpcServer = NettyServerBuilder
             .forPort(grpcPort)
@@ -38,10 +51,12 @@ fun main() {
             .build()
 
         launch(Dispatchers.IO) {
+            logger.debug { "Starting GRPC service on port $grpcPort" }
             grpcServer.start()
         }
 
         launch(Dispatchers.IO) {
+            logger.debug { "Starting HTTP service on port $grpcPort" }
             embeddedServer(
                 Netty,
                 port = port,

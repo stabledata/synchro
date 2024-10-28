@@ -16,6 +16,11 @@ fun envInt(key: String): Int {
     return found.toInt()
 }
 
+fun envIntOptional(key: String): Int? {
+    val found = dotenv[key] ?: System.getenv(key) ?: return null
+    return found.toIntOrNull()
+}
+
 fun envFlag(key: String): Boolean {
     val found = dotenv[key] ?: System.getenv(key)
     return found.toBoolean()
