@@ -29,9 +29,9 @@ class SchemaGrpcTest:WordSpec({
 
                 try {
                     stub.createCollection(request)
-                    fail("Expected INVALID_ARGUMENT exception")
+                    fail("Expected UNAUTHENTICATED exception")
                 } catch (e: StatusRuntimeException) {
-                    e.status.code shouldBe Status.INVALID_ARGUMENT.code
+                    e.status.code shouldBe Status.UNAUTHENTICATED.code
                 }
             }
         }
