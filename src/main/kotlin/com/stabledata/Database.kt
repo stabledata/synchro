@@ -21,7 +21,9 @@ fun hikari (): HikariDataSource {
     }
 
     return hikariDS ?: synchronized(DB_LOCK) {
-        hikariDS ?: HikariDataSource(hikariConfig).also { hikariDS = it }
+        hikariDS ?: HikariDataSource(hikariConfig).also {
+            hikariDS = it
+        }
     }
 }
 

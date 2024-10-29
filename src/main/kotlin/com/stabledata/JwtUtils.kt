@@ -57,6 +57,6 @@ fun credentialFromToken(token: String): JWTCredential {
         return JWTCredential(decodedJWT)
     } catch (e: Exception) {
         logger.error { "Failed to verify JWT token: $token " }
-        throw BadRequestException("Request requires a valid bearer token")
+        throw UnauthorizedException("Request requires a valid bearer token")
     }
 }
