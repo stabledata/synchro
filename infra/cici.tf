@@ -48,8 +48,27 @@ resource "google_project_iam_member" "allow_push_to_artifact_registry" {
   member  = "serviceAccount:${google_service_account.github_cicd_service_account.email}"
 }
 
+resource "google_project_iam_member" "allow_cloud_run_view" {
+  project = var.project
+  role    = "roles/run.developer"
+  member  = "serviceAccount:${google_service_account.github_cicd_service_account.email}"
+}
+
 resource "google_project_iam_member" "allow_token_creation" {
   project = var.project
   role    = "roles/iam.serviceAccountTokenCreator"
   member  = "serviceAccount:${google_service_account.github_cicd_service_account.email}"
+}
+
+resource "google_project_iam_member" "github_actions_service_account_user" {
+  project = var.project
+  role    = "roles/iam.serviceAccountUser"
+  member  = "serviceAccount:${google_service_account.github_cicd_service_account.email}"
+}
+
+# Grant iam.serviceAccountUser to GitHub Actions service account for the Synchro App service account
+resource "google_service_account_iam_member" "github_actions_service_account_user" {
+  service_account_id = google_service_account.app_synchro_service_account.name
+  role               = "roles/iam.serviceAccountUser"
+  member             = "serviceAccount:${google_service_account.github_cicd_service_account.email}"
 }
