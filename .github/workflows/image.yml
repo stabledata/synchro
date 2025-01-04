@@ -27,14 +27,23 @@ jobs:
       - name: "Auth to AR"
         run: gcloud auth configure-docker us-east4-docker.pkg.dev
 
-      - name: "Build Docker Image"
+      - name: "Build Synchro Image"
         run: |
           docker build . \
             -f Dockerfile \
             -t us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:${GITHUB_SHA::6} \
             -t us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:latest
 
-      - name: "Push Docker Image to AR"
+      - name: "Build Nginx Image"
+        run: |
+          docker build . \
+            -f nginx.Dockerfile \
+            -t us-east4-docker.pkg.dev/surface-420608/stable/synchro-nginx:${GITHUB_SHA::6} \
+            -t us-east4-docker.pkg.dev/surface-420608/stable/synchro-nginx:latest
+
+      - name: "Push Images to AR"
         run: |
           docker push us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:${GITHUB_SHA::6}
           docker push us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:latest
+          docker push us-east4-docker.pkg.dev/surface-420608/stable/synchro-nginx:${GITHUB_SHA::6}
+          docker push us-east4-docker.pkg.dev/surface-420608/stable/synchro-nginx:latest
