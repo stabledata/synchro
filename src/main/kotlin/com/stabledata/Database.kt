@@ -12,6 +12,7 @@ var hikariDS: HikariDataSource? = null
 fun hikari (): HikariDataSource {
     val hikariConfig = if (envFlag("PROD")) HikariConfig().apply {
         jdbcUrl = envString("NEON_FULL_JDBC_URL")
+        maximumPoolSize = envInt("STABLE_DB_MAX_CONNECTIONS")
     } else HikariConfig().apply {
         driverClassName = "org.postgresql.Driver"
         jdbcUrl = envString("STABLE_JDBC_URL")
