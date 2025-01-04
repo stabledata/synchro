@@ -43,5 +43,7 @@ out/
 
 # generated client
 client/
+
 /infra/.terraform/providers/registry.terraform.io/hashicorp/google/6.5.0/darwin_arm64/terraform-provider-google_v6.5.0_x5
 /env.prod.yaml
+.env.yaml

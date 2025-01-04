@@ -39,8 +39,8 @@ fun main() {
     runBlocking {
 
         // Allegedly, cloud run can multiplex requests into the same port
-        val port = envInt("PORT")
-        val grpcPort = envIntOptional("GRPC_PORT") ?: port
+        val httpPort = envInt("HTTP_PORT")
+        val grpcPort = envInt("GRPC_PORT")
 
         val grpcServer = NettyServerBuilder
             .forPort(grpcPort)
@@ -56,10 +56,10 @@ fun main() {
         }
 
         launch(Dispatchers.IO) {
-            logger.debug { "Starting HTTP service on port $grpcPort" }
+            logger.debug { "Starting HTTP service on port $httpPort" }
             embeddedServer(
                 Netty,
-                port = port,
+                port = httpPort,
             ) {
                 module()
             }.start(wait = true)
