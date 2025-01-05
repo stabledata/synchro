@@ -71,7 +71,7 @@ jobs:
           echo "HTTP_PORT: '8080'" >> .env.yaml 
           echo "PGSSLROOTCERT: '/etc/ssl/certs/ca-certificates.crt'" >> .env.yaml 
           
-          gcloud run deploy synchro-kotlin-shared \
+          gcloud run deploy synchro-kotlin-shared-alpha \
             --image us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:latest \
             --service-account app-synchro@surface-420608.iam.gserviceaccount.com \
             --region us-east4 \
