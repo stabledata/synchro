@@ -38,10 +38,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up JDK 17 (Corretto)
+      - name: Set up JDK 21 (Corretto)
         uses: actions/setup-java@v4
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'corretto'
 
       - name: Install
