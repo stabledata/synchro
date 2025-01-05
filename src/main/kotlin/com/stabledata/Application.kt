@@ -37,34 +37,41 @@ fun main() {
     val logger = KotlinLogging.logger {}
 
     runBlocking {
+        // Service can be run as both as HTTP or GRPC.
+        // It can listen for both at the same time, but this
+        // requires special deployment considerations/
+        // Locally, running nginx in front works, but have
+        // yet to find a managed hosting solution where this
+        // works gracefully -- cloud run was promising but didn't pan out
+        val grpcPort = envIntOptional("GRPC_PORT")
+        if (grpcPort !== null) {
+            val grpcServer = NettyServerBuilder
+                .forPort(grpcPort)
+                .intercept(GrpcContextInterceptor())
+                .intercept(ExceptionHandlingInterceptor())
+                .addService(SchemaService())
 
-        // Allegedly, cloud run can multiplex requests into the same port
-        val httpPort = envInt("HTTP_PORT")
-        val grpcPort = envInt("GRPC_PORT")
+                .addService(ProtoReflectionService.newInstance())
+                .build()
 
-        val grpcServer = NettyServerBuilder
-            .forPort(grpcPort)
-            .intercept(GrpcContextInterceptor())
-            .intercept(ExceptionHandlingInterceptor())
-            .addService(SchemaService())
-
-            .addService(ProtoReflectionService.newInstance())
-            .build()
-
-        launch(Dispatchers.IO) {
-            logger.debug { "Starting GRPC service on port $grpcPort" }
-            grpcServer.start()
+            launch(Dispatchers.IO) {
+                logger.debug { "Starting GRPC service on port $grpcPort" }
+                grpcServer.start()
+            }
         }
 
-        launch(Dispatchers.IO) {
-            logger.debug { "Starting HTTP service on port $httpPort" }
-            embeddedServer(
-                Netty,
-                port = httpPort,
-                host = "0.0.0.0"
-            ) {
-                module()
-            }.start(wait = true)
+        val httpPort = envIntOptional("HTTP_PORT")
+        if (httpPort !== null) {
+            launch(Dispatchers.IO) {
+                logger.debug { "Starting HTTP service on port $httpPort" }
+                embeddedServer(
+                    Netty,
+                    port = httpPort,
+                    host = "0.0.0.0"
+                ) {
+                    module()
+                }.start(wait = true)
+            }
         }
     }
 }
