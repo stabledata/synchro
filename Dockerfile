@@ -2,7 +2,7 @@ FROM openjdk:17-jdk-slim as build
 WORKDIR /app
 COPY . .
 RUN ./gradlew installDist
-RUN ls -la /app/build/install
+RUN ls -la /app/build/install/synchro
 
 FROM openjdk:17-jdk-slim
 ENV PGSSLROOTCERT /etc/ssl/certs/ca-certificates.crt
