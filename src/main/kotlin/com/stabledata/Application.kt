@@ -47,6 +47,7 @@ fun main() {
             .intercept(GrpcContextInterceptor())
             .intercept(ExceptionHandlingInterceptor())
             .addService(SchemaService())
+
             .addService(ProtoReflectionService.newInstance())
             .build()
 
