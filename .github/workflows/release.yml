@@ -72,11 +72,10 @@ jobs:
           echo "PGSSLROOTCERT: '/etc/ssl/certs/ca-certificates.crt'" >> .env.yaml 
           
           gcloud run deploy synchro-kotlin-shared \
+            --image us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:latest \
             --service-account app-synchro@surface-420608.iam.gserviceaccount.com \
             --region us-east4 \
             --allow-unauthenticated \
-            --container nginx \
-            --image us-east4-docker.pkg.dev/surface-420608/stable/synchro-kotlin:latest \
             --port 8080 \
             --update-secrets JWT_SECRET=JWT_SECRET:latest,ABLY_API_KEY=ABLY_API_KEY:latest,NEON_FULL_JDBC_URL=NEON_FULL_JDBC_URL:latest \
             --env-vars-file .env.yaml 

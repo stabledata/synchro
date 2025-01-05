@@ -39,7 +39,7 @@ fun main() {
     runBlocking {
         // Service can be run as both as HTTP or GRPC.
         // It can listen for both at the same time, but this
-        // requires special deployment considerations/
+        // requires special deployment considerations
         // Locally, running nginx in front works, but have
         // yet to find a managed hosting solution where this
         // works gracefully -- cloud run was promising but didn't pan out
