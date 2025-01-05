@@ -60,6 +60,7 @@ fun main() {
             embeddedServer(
                 Netty,
                 port = httpPort,
+                host = "127.0.0.1"
             ) {
                 module()
             }.start(wait = true)
