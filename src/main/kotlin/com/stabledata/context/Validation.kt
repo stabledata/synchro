@@ -7,17 +7,22 @@ import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.util.pipeline.*
-import io.ktor.utils.io.errors.*
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json.Default.parseToJsonElement
-import java.nio.file.Files
-import java.nio.file.Paths
+import java.io.FileNotFoundException
+
+fun loadResource(schemaFileName: String): String {
+    val schemaLocation = "openapi/schemas/$schemaFileName"
+    val schemaStream = Thread.currentThread().contextClassLoader.getResourceAsStream(schemaLocation)
+        ?: throw FileNotFoundException("Unable to find resource: $schemaLocation")
+
+    return schemaStream.bufferedReader().use { it.readText() }
+}
 
 fun validateJSONUsingSchema(schemaFileName: String, payload: String): Pair<Boolean, List<String>> {
     val logger = KotlinLogging.logger {}
     try {
-        val schemaLocation = "src/main/resources/openapi/schemas/$schemaFileName"
-        val schemaJson = Files.readString(Paths.get(schemaLocation))
+        val schemaJson = loadResource(schemaFileName)
         val schema = JsonSchema.fromDefinition(schemaJson)
         val json = parseToJsonElement(payload)
         val errors = mutableListOf<ValidationError>()
@@ -28,7 +33,7 @@ fun validateJSONUsingSchema(schemaFileName: String, payload: String): Pair<Boole
                 it.message
             }
         )
-    } catch (e: IOException) {
+    } catch (e: FileNotFoundException) {
         logger.error {"Unable to locate schema at: resources/openapi/schemas/$schemaFileName" }
         return Pair(false, emptyList())
     }  catch (e: SerializationException) {
