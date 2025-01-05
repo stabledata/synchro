@@ -47,6 +47,7 @@ jobs:
           echo "STABLE_DB_MAX_CONNECTIONS: '10'" >> .env.yaml 
           echo "HTTP_PORT: '8001'" >> .env.yaml 
           echo "GRPC_PORT: '50051'" >> .env.yaml 
+          echo "PGSSLROOTCERT: '/etc/ssl/certs/ca-certificates.crt'" >> .env.yaml 
           
           gcloud run deploy synchro-kotlin-shared \
             --service-account app-synchro@surface-420608.iam.gserviceaccount.com \

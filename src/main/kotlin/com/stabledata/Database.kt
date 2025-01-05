@@ -13,17 +13,24 @@ fun hikari (): HikariDataSource {
     val hikariConfig = if (envFlag("PROD")) HikariConfig().apply {
         jdbcUrl = envString("NEON_FULL_JDBC_URL")
         maximumPoolSize = envInt("STABLE_DB_MAX_CONNECTIONS")
+        addDataSourceProperty("ssl", "true")
+        addDataSourceProperty("sslmode", "verify-full")
+        addDataSourceProperty("sslrootcert", envString("PGSSLROOTCERT")) // Path to the root cert
     } else HikariConfig().apply {
         driverClassName = "org.postgresql.Driver"
         jdbcUrl = envString("STABLE_JDBC_URL")
         username = envString("STABLE_DB_USER")
         password = envString("STABLE_DB_PASSWORD")
         maximumPoolSize = envInt("STABLE_DB_MAX_CONNECTIONS")
+        addDataSourceProperty("ssl", "true")
+        addDataSourceProperty("sslmode", "require")
+        addDataSourceProperty("sslrootcert", envString("PGSSLROOTCERT")) // Path to the root cert
     }
 
     return hikariDS ?: synchronized(DB_LOCK) {
         hikariDS ?: HikariDataSource(hikariConfig).also {
             hikariDS = it
+
         }
     }
 }
