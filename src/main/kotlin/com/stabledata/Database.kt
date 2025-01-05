@@ -22,9 +22,7 @@ fun hikari (): HikariDataSource {
         username = envString("STABLE_DB_USER")
         password = envString("STABLE_DB_PASSWORD")
         maximumPoolSize = envInt("STABLE_DB_MAX_CONNECTIONS")
-        addDataSourceProperty("ssl", "true")
-        addDataSourceProperty("sslmode", "require")
-        addDataSourceProperty("sslrootcert", envString("PGSSLROOTCERT")) // Path to the root cert
+        addDataSourceProperty("ssl", "false")
     }
 
     return hikariDS ?: synchronized(DB_LOCK) {

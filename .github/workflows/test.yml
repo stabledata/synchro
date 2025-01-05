@@ -18,7 +18,7 @@ jobs:
       STABLE_DB_USER: postgres
       STABLE_DB_MAX_CONNECTIONS: 10
       STABLE_JDBC_URL: jdbc:postgresql://localhost:5432/postgres
-      PGSSLROOTCERT: /etc/ssl/certs/ca-certificates.crt
+
     services:
       postgres:
         image: postgres:16-alpine
