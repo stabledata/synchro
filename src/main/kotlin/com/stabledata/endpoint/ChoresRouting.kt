@@ -1,7 +1,7 @@
 package com.stabledata.endpoint
 
 import com.stabledata.envFlag
-import com.stabledata.generateTokenForTesting
+import com.stabledata.context.generateTokenForTesting
 import com.stabledata.hikari
 import com.stabledata.context.JWT_NAME
 import com.stabledata.uuidString

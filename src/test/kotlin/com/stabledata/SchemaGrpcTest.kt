@@ -1,5 +1,6 @@
 package com.stabledata
 
+import com.stabledata.context.generateTokenForTesting
 import com.stabledata.grpc.SchemaService
 import io.grpc.Status
 import io.grpc.StatusRuntimeException

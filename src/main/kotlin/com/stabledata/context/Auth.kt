@@ -2,9 +2,7 @@ package com.stabledata.context
 
 import com.stabledata.PermissionDenied
 import com.stabledata.UnauthorizedException
-import com.stabledata.credentialFromToken
 import com.stabledata.dao.AccessTable
-import com.stabledata.getVerifier
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.http.*
 import io.ktor.server.application.*

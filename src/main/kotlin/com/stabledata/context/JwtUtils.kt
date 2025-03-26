@@ -1,10 +1,10 @@
-package com.stabledata
+package com.stabledata.context
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.algorithms.Algorithm
-import com.stabledata.context.Roles
-import com.stabledata.context.UserCredentials
+import com.stabledata.UnauthorizedException
+import com.stabledata.orDefault
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.server.auth.jwt.*
 import java.util.*
